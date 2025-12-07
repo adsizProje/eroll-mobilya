@@ -2,159 +2,131 @@
 
 Erol Mobilya & Koltuk için Astro SSG ile oluşturulmuş web sitesi ve Strapi CMS ile içerik yönetimi.
 
-## Proje Yapısı
+## 🌐 Canlı Linkler
+
+| Servis | URL |
+|--------|-----|
+| **Website** | https://eroll-mobilya.netlify.app/ |
+| **CMS Admin Panel** | https://eroll-mobilya-cms-production.up.railway.app/admin |
+| **Netlify Dashboard** | https://app.netlify.com/projects/eroll-mobilya/overview |
+
+## 📁 Proje Yapısı
+
+Bu proje iki ayrı repository'den oluşmaktadır:
+
+### Frontend (Bu Repo)
+🔗 https://github.com/adsizProje/eroll-mobilya
 
 ```
 erol-mobilya/
-├── cms/                 # Strapi CMS (Admin Panel)
-│   └── src/api/         # Content-type tanımları
 ├── web/                 # Astro Frontend (SSG)
 │   ├── src/
-│   │   ├── components/  # Astro bileşenleri
-│   │   ├── layouts/     # Sayfa şablonları
-│   │   ├── lib/         # API ve yardımcı fonksiyonlar
+│   │   ├── components/  # Header, Footer
+│   │   ├── layouts/     # BaseLayout
+│   │   ├── lib/         # API client (Strapi entegrasyonu)
 │   │   ├── pages/       # Site sayfaları
-│   │   └── styles/      # Global stiller
-│   └── public/          # Statik dosyalar
-└── logo/                # Logo dosyaları
+│   │   └── styles/      # Tailwind 4 + tema
+│   ├── public/          # Logo, favicon
+│   └── netlify.toml     # Netlify yapılandırması
+├── logo/                # Orijinal logo dosyaları
+└── site.txt             # Site içerik referansı
 ```
 
-## Kurulum
+### CMS (Ayrı Repo)
+🔗 https://github.com/adsizProje/eroll-mobilya-cms
 
-### 1. Strapi CMS (Admin Panel)
-
-```bash
-cd cms
-npm install
-npm run develop
+```
+eroll-mobilya-cms/
+├── config/              # Strapi yapılandırması
+├── src/api/             # Content-type tanımları
+│   └── oturma-grubu/    # Oturma grupları koleksiyonu
+└── public/uploads/      # Yüklenen medya dosyaları
 ```
 
-İlk çalıştırmada admin kullanıcısı oluşturmanız istenecek.
+## 🚀 Hosting
 
-**Admin URL:** http://localhost:1337/admin
+| Servis | Platform | Açıklama |
+|--------|----------|----------|
+| Frontend | **Netlify** | Astro SSG static build |
+| CMS | **Railway** | Strapi + PostgreSQL |
 
-### 2. Astro Frontend
+## 🛠️ Local Geliştirme
 
+### Frontend
 ```bash
 cd web
 npm install
 npm run dev
 ```
+→ http://localhost:4321
 
-**Site URL:** http://localhost:4321
-
-## Environment Variables
-
-### Strapi (`cms/.env`)
-
-```env
-HOST=0.0.0.0
-PORT=1337
-APP_KEYS=your-app-keys
-API_TOKEN_SALT=your-api-token-salt
-ADMIN_JWT_SECRET=your-admin-jwt-secret
-TRANSFER_TOKEN_SALT=your-transfer-token-salt
-JWT_SECRET=your-jwt-secret
-
-# Netlify Build Hook (içerik güncellendiğinde tetiklenecek)
-NETLIFY_BUILD_HOOK=https://api.netlify.com/build_hooks/YOUR_HOOK_ID
+### CMS (ayrı repo'dan)
+```bash
+cd ../eroll-mobilya-cms  # veya cms klasörünüz neredeyse
+npm install
+npm run develop
 ```
+→ http://localhost:1337/admin
 
-### Astro Frontend (`web/.env`)
+## 🔐 Environment Variables
 
-```env
-STRAPI_URL=http://localhost:1337
-STRAPI_READ_TOKEN=your-strapi-api-token
-```
+### Netlify (Frontend)
+| Variable | Değer |
+|----------|-------|
+| `STRAPI_URL` | `https://eroll-mobilya-cms-production.up.railway.app` |
+| `STRAPI_READ_TOKEN` | Strapi API Token |
 
-## Strapi API Token Oluşturma
+### Railway (CMS)
+| Variable | Değer |
+|----------|-------|
+| `DATABASE_CLIENT` | `postgres` |
+| `DATABASE_HOST` | `${{Postgres.PGHOST}}` |
+| `DATABASE_PORT` | `${{Postgres.PGPORT}}` |
+| `DATABASE_NAME` | `${{Postgres.PGDATABASE}}` |
+| `DATABASE_USERNAME` | `${{Postgres.PGUSER}}` |
+| `DATABASE_PASSWORD` | `${{Postgres.PGPASSWORD}}` |
+| `APP_KEYS` | Rastgele key'ler |
+| `ADMIN_JWT_SECRET` | Rastgele secret |
+| `JWT_SECRET` | Rastgele secret |
+| `API_TOKEN_SALT` | Rastgele salt |
+| `TRANSFER_TOKEN_SALT` | Rastgele salt |
+| `ENCRYPTION_KEY` | Rastgele key |
+| `NETLIFY_BUILD_HOOK` | Netlify hook URL |
 
-1. Strapi admin paneline girin
-2. Settings > API Tokens > Create new API Token
-3. Token type: Read-only
-4. Permissions: `oturma-grubu` koleksiyonu için `find` ve `findOne`
-5. Token'ı kopyalayın ve `web/.env` dosyasına ekleyin
+## 📝 İçerik Yönetimi
 
-## Netlify Dağıtımı
-
-### 1. Build Hook Oluşturma
-
-1. Netlify Dashboard > Site settings > Build & deploy > Build hooks
-2. "Add build hook" tıklayın
-3. İsim verin (örn: "Strapi Content Update")
-4. Hook URL'sini kopyalayın
-5. Strapi `.env` dosyasına `NETLIFY_BUILD_HOOK` olarak ekleyin
-
-### 2. Environment Variables (Netlify)
-
-Netlify Dashboard > Site settings > Environment variables:
-
-- `STRAPI_URL`: Strapi sunucu URL'si (örn: https://cms.erollmobilya.com)
-- `STRAPI_READ_TOKEN`: Strapi API token
-
-### 3. Build Ayarları
-
-Netlify otomatik olarak `netlify.toml` dosyasını okuyacak:
-
-- Build command: `npm run build`
-- Publish directory: `dist`
-
-## İçerik Yönetimi
-
-### Oturma Grubu Ekleme
-
-1. Strapi admin paneline girin
-2. Content Manager > Oturma Grubu > Create new entry
-3. Gerekli alanları doldurun:
+1. **CMS Admin Panel**'e git: https://eroll-mobilya-cms-production.up.railway.app/admin
+2. **Content Manager** → **Oturma Grubu** → **Create new entry**
+3. Alanları doldur:
    - **Title**: Ürün adı
-   - **Slug**: URL için otomatik oluşturulur
-   - **Menu Label**: Menüde görünecek isim (opsiyonel)
+   - **Slug**: Otomatik oluşur
    - **Summary**: Kısa açıklama
    - **Body Rich**: Detaylı açıklama (WYSIWYG)
-   - **Dimensions**: Boyutlar
-   - **Materials**: Malzemeler
-   - **Order**: Sıralama numarası
    - **Hero Image**: Ana görsel
    - **Gallery**: Galeri görselleri
-4. Publish butonuna tıklayın
+   - **Dimensions** / **Materials**: Özellikler
+   - **Order**: Menü sıralaması
+4. **Publish** → Netlify otomatik rebuild tetiklenir
 
-İçerik kaydedildiğinde otomatik olarak Netlify build tetiklenecek.
-
-## Geliştirme
-
-### Astro Komutları
-
-```bash
-npm run dev      # Geliştirme sunucusu
-npm run build    # Production build
-npm run preview  # Build önizleme
-```
-
-### Strapi Komutları
-
-```bash
-npm run develop  # Geliştirme sunucusu
-npm run start    # Production sunucusu
-npm run build    # Admin panel build
-```
-
-## Teknolojiler
+## 🎨 Teknolojiler
 
 - **Frontend:** Astro 5, Tailwind CSS 4, Motion
 - **CMS:** Strapi 5
-- **Hosting:** Netlify (Frontend), Self-hosted/Cloud (Strapi)
+- **Database:** PostgreSQL (Railway)
+- **Hosting:** Netlify (Frontend) + Railway (CMS)
 
-## Renk Paleti
+## 🎨 Renk Paleti
 
-- Ana Renk (Accent): `#B19877`
-- Siyah: `#0a0908`
-- Beyaz (Background): `#fefae0`
-- Muted Tonlar: `#cbb79a`, `#d9c8ad`, `#e8dcc5`
+| Renk | Hex | Kullanım |
+|------|-----|----------|
+| Accent | `#B19877` | Butonlar, vurgular |
+| Black | `#0a0908` | Metin, footer |
+| Background | `#fefae0` | Sayfa arka planı |
+| Muted | `#cbb79a`, `#d9c8ad`, `#e8dcc5` | Alt tonlar |
 
-## İletişim
+## 📞 İletişim
 
 - **Telefon:** 0532 771 32 24
 - **Adres:** Karşıyaka mahallesi 3001 sokak No:46, Merkez Elazığ, 23050
 - **Instagram:** [@erollmobilya](https://instagram.com/erollmobilya)
 - **Facebook:** [/agahmob](https://facebook.com/agahmob)
-

@@ -1,0 +1,82 @@
+/* Google Fonts - must be first */
+@import url('https://fonts.googleapis.com/css2?family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&family=Manrope:wght@300;400;500;600;700&display=swap');
+
+@import "tailwindcss";
+
+/* Erol Mobilya Color Palette */
+@theme {
+  /* Ana Renkler */
+  --color-accent: #B19877;
+  --color-accent-dark: #9A8466;
+  --color-accent-light: #C9B08F;
+  
+  /* Temel Renkler */
+  --color-bg: #fefae0;
+  --color-bg-alt: #f5f0d0;
+  --color-fg: #0a0908;
+  --color-fg-muted: #3d3a38;
+  
+  /* Tamamlayıcı Tonlar */
+  --color-muted-1: #cbb79a;
+  --color-muted-2: #d9c8ad;
+  --color-muted-3: #e8dcc5;
+  --color-warm-gray: #6b6560;
+  
+  /* Fontlar */
+  --font-heading: 'Libre Caslon Text', 'Georgia', serif;
+  --font-body: 'Manrope', 'Inter', system-ui, sans-serif;
+}
+
+/* Base Styles */
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  body {
+    font-family: var(--font-body);
+    background-color: var(--color-bg);
+    color: var(--color-fg);
+    line-height: 1.6;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    line-height: 1.2;
+  }
+  
+  a {
+    color: var(--color-accent-dark);
+    text-decoration: none;
+    transition: color 0.2s ease;
+  }
+  
+  a:hover {
+    color: var(--color-accent);
+  }
+  
+  img {
+    max-width: 100%;
+    height: auto;
+  }
+}
+
+/* Custom Utilities */
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+  
+  .bg-gradient-accent {
+    background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-dark) 100%);
+  }
+  
+  .shadow-elegant {
+    box-shadow: 0 4px 20px rgba(10, 9, 8, 0.08), 0 2px 8px rgba(10, 9, 8, 0.04);
+  }
+  
+  .shadow-elegant-lg {
+    box-shadow: 0 8px 40px rgba(10, 9, 8, 0.12), 0 4px 16px rgba(10, 9, 8, 0.06);
+  }
+}

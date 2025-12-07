@@ -1,0 +1,105 @@
+Site ismi:
+erollmobilya.com
+
+İsim: Eroll Mobilya & Koltuk
+Eroll Mobilya San. Tic. Ltd. Şti.
+
+Hizmetler:
+İmalat
+Toptan ve Perakende
+
+contact bilgileri
+tel: 0532 771 32 24
+instagram: https://www.instagram.com/erollmobilya/
+facebook: https://www.facebook.com/agahmob/
+
+adres: Karşıyaka mahallesi 3001 sokak No:46 Merkez Elazığ, Elazig 23050
+google maps linki: https://www.google.com/maps/place//data=!4m2!3m1!1s0x4076bfb55d4bc2b7:0xca8d0f70c179bfcc?sa=X&ved=1t:8290&ictx=111
+
+color palette:
+main: #B19877
+black: #0a0908
+white: #fefae0
+
+genel site promptu ve içerikleri:
+
+Website Design Prompt for “Erol Mobilya & Koltuk” — erollmobilya.com
+
+Design an elegant, modern, and refined website for Erol Mobilya & Koltuk, a furniture and sofa manufacturer. The visual style should feel high-quality, warm, and sophisticated.
+
+Brand & Colors
+
+Brand Name: Erol Mobilya & Koltuk
+
+Domain: erollmobilya.com
+
+Main Color (Accent): #B19877 — use this for important UI elements like header highlights, key buttons, and section accents.
+
+Black: #0a0908
+
+White (Background): #fefae0
+
+Add 2–3 complementary colors in the same palette range (muted beige, warm gray, or soft brown tones) for buttons and UI elements.
+
+Design Style
+
+Modern, elegant, and clean
+
+White background with black text, complemented by the main gold-beige tone
+
+High-quality furniture/sofa imagery
+
+Subtle shadows, rounded edges, and premium typography
+
+Overall aesthetic should feel luxurious yet minimal
+
+Page Structure
+1. Homepage
+
+Medium-sized slider/hero section showcasing sofa sets and furniture
+
+“Our Services” section with icons or minimal cards
+
+A product preview section featuring 3–4 selected sofa sets or furniture products
+
+Clear CTA buttons using the accent color
+
+Elegant header and footer
+
+2. About Us (Hakkımızda)
+
+Company background, craftsmanship emphasis, mission of quality
+
+3. Vision & Mission
+
+Separate page explaining long-term goals and core values
+
+4. Sofa Sets (Oturma Grupları) — Category Page
+
+Grid layout of sofa set collections
+
+Each item links to its own detailed product page
+
+5. Individual Sofa Set Pages
+
+Large product images
+
+Description, dimensions, materials, and customization options
+
+6. Contact Page
+
+Contact form
+
+Map, phone number, email, and WhatsApp button
+
+General Notes
+
+Use the main color #B19877 for emphasis and primary CTA buttons
+
+Maintain consistency, spacing, and premium feel
+
+Navigation should be clean, minimal, and clearly structured
+
+Ensure responsiveness across devices
+
+Include a visually appealing header and a neat footer with links and contact info

@@ -10,24 +10,12 @@ try {
 }
 ---
 
-<header class="sticky top-0 z-50 bg-bg/95 backdrop-blur-sm border-b border-muted-3">
-  <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="flex items-center justify-between h-20">
-      <!-- Logo -->
-      <a href="/" class="flex items-center gap-3 group">
-        <img 
-          src="/logo/erol_logo_transparent.png" 
-          alt="Erol Mobilya Logo" 
-          class="h-14 w-auto transition-transform group-hover:scale-105"
-        />
-      </a>
+<header class="sticky top-0 z-50 bg-accent-light/60 backdrop-blur-sm border-b border-muted-3 transition-colors duration-300">
+  <nav class="max-w-7xl mx-auto px-2 sm:px-4 lg:px-6">
+    <div class="grid grid-cols-[1fr_auto_1fr] items-center lg:h-full h-20">
       
-      <!-- Desktop Navigation -->
-      <div class="hidden md:flex items-center gap-8">
-        <a href="/" class="nav-link">Ana Sayfa</a>
-        <a href="/hakkimizda" class="nav-link">Hakkımızda</a>
-        <a href="/vizyon-misyon" class="nav-link">Vizyon & Misyon</a>
-        
+      <!-- Desktop Navigation (Left) -->
+      <div class="hidden md:flex items-center gap-8 justify-start">
         <!-- Oturma Grupları Dropdown -->
         <div class="relative group">
           <button class="nav-link flex items-center gap-1">
@@ -55,38 +43,80 @@ try {
             </div>
           </div>
         </div>
-        
-        <a href="/iletisim" class="px-5 py-2.5 bg-accent text-white font-medium rounded-lg hover:bg-accent-dark transition-colors shadow-[0_4px_20px_rgba(10,9,8,0.08),0_2px_8px_rgba(10,9,8,0.04)]">İletişim</a>
+
+        <a href="/hakkimizda" class="nav-link">Hakkımızda</a>
+        <a href="/vizyon-misyon" class="nav-link">Vizyon & Misyon</a>
+      </div>
+
+      <!-- Mobile Menu Button (Left on Mobile) -->
+      <div class="flex md:hidden justify-start z-50">
+        <button 
+          id="mobile-menu-btn"
+          class="p-2 -ml-2 rounded-lg hover:bg-muted-3 transition-colors group"
+          aria-label="Menüyü aç"
+          aria-expanded="false"
+        >
+          <div class="w-6 h-5 relative flex flex-col justify-center">
+            <span class="w-full h-0.5 bg-fg rounded-full transition-all duration-300 absolute group-[.is-active]:rotate-45 group-[.is-active]:translate-y-0 translate-y-[-8px]"></span>
+            <span class="w-full h-0.5 bg-fg rounded-full transition-all duration-300 absolute opacity-100 group-[.is-active]:opacity-0"></span>
+            <span class="w-full h-0.5 bg-fg rounded-full transition-all duration-300 absolute group-[.is-active]:-rotate-45 group-[.is-active]:translate-y-0 translate-y-[8px]"></span>
+          </div>
+        </button>
+      </div>
+
+      <!-- Logo (Center) -->
+      <div class="flex justify-center -ml-4 md:ml-0 z-50"> 
+        <a href="/" class="flex items-center gap-3 group">
+          <img 
+            src="/logo/erol_logo_transparent.png" 
+            alt="Erol Mobilya Logo" 
+            class="h-16 md:h-22 w-auto scale-110 transition-transform group-hover:scale-115"
+          />
+        </a>
       </div>
       
-      <!-- Mobile Menu Button -->
-      <button 
-        id="mobile-menu-btn"
-        class="md:hidden p-2 rounded-lg hover:bg-muted-3 transition-colors"
-        aria-label="Menüyü aç"
-      >
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-        </svg>
-      </button>
+      <!-- Contact (Right) -->
+      <div class="flex items-center justify-end z-40">
+        <a href="/iletisim" class="inline-flex px-4 py-2 md:px-6 md:py-3 text-sm md:text-base bg-accent text-white font-medium rounded-lg hover:bg-accent-dark transition-colors shadow-[0_4px_20px_rgba(10,9,8,0.08),0_2px_8px_rgba(10,9,8,0.04)]">
+          İletişim
+        </a>
+      </div>
     </div>
     
-    <!-- Mobile Navigation -->
-    <div id="mobile-menu" class="hidden md:hidden pb-4">
-      <div class="flex flex-col gap-2">
-        <a href="/" class="px-4 py-3 rounded-lg hover:bg-muted-3 transition-colors font-medium">Ana Sayfa</a>
-        <a href="/hakkimizda" class="px-4 py-3 rounded-lg hover:bg-muted-3 transition-colors font-medium">Hakkımızda</a>
-        <a href="/vizyon-misyon" class="px-4 py-3 rounded-lg hover:bg-muted-3 transition-colors font-medium">Vizyon & Misyon</a>
-        <a href="/oturma-gruplari" class="px-4 py-3 rounded-lg hover:bg-muted-3 transition-colors font-medium">Oturma Grupları</a>
-        {oturmaGruplari.map((item) => (
-          <a 
-            href={`/oturma-gruplari/${item.slug}`} 
-            class="px-4 py-3 pl-8 text-sm rounded-lg hover:bg-muted-3 transition-colors font-medium"
-          >
-            {item.menuLabel || item.title}
-          </a>
-        ))}
-        <a href="/iletisim" class="px-4 py-3 mt-2 bg-accent text-white font-medium rounded-lg text-center hover:bg-accent-dark transition-colors">İletişim</a>
+    <!-- Mobile Drawer Overlay -->
+    <div 
+      id="mobile-overlay"
+      class="fixed inset-0 bg-black/50 backdrop-blur-[2px] z-40 opacity-0 invisible transition-all duration-300 md:hidden h-dvh"
+    ></div>
+
+    <!-- Mobile Navigation Drawer -->
+    <div 
+      id="mobile-drawer" 
+      class="fixed top-0 left-0 h-dvh w-[85%] max-w-sm bg-bg-alt z-40 transform -translate-x-full transition-transform duration-300 ease-in-out md:hidden shadow-2xl flex flex-col pt-32 px-6 overflow-y-auto"
+    >
+      <nav class="flex flex-col">
+        <a href="/" class="px-4 py-3 rounded-lg hover:bg-muted-3 transition-colors font-medium text-lg">Ana Sayfa</a>
+        <a href="/hakkimizda" class="px-4 py-3 rounded-lg hover:bg-muted-3 transition-colors font-medium text-lg">Hakkımızda</a>
+        <a href="/vizyon-misyon" class="px-4 py-3 rounded-lg hover:bg-muted-3 transition-colors font-medium text-lg">Vizyon & Misyon</a>
+        
+        <div class="px-4 py-3 font-medium text-lg text-fg-muted">Oturma Grupları</div>
+        <div class="pl-4 flex flex-col gap-1 border-l-2 border-muted-3 ml-4">
+          <a href="/oturma-gruplari" class="px-4 py-2 rounded-lg hover:bg-muted-3 transition-colors">Tümünü Gör</a>
+          {oturmaGruplari.map((item) => (
+            <a 
+              href={`/oturma-gruplari/${item.slug}`} 
+              class="px-4 py-2 rounded-lg hover:bg-muted-3 transition-colors"
+            >
+              {item.menuLabel || item.title}
+            </a>
+          ))}
+        </div>
+      </nav>
+      
+      <div class="mt-auto mb-8">
+        <p class="text-sm text-fg-muted text-center">
+          &copy; {new Date().getFullYear()} Erol Mobilya
+        </p>
       </div>
     </div>
   </nav>
@@ -123,9 +153,34 @@ try {
 
 <script>
   const menuBtn = document.getElementById('mobile-menu-btn');
-  const mobileMenu = document.getElementById('mobile-menu');
+  const drawer = document.getElementById('mobile-drawer');
+  const overlay = document.getElementById('mobile-overlay');
   
-  menuBtn?.addEventListener('click', () => {
-    mobileMenu?.classList.toggle('hidden');
+  function toggleMenu() {
+    const isExpanded = menuBtn?.getAttribute('aria-expanded') === 'true';
+    
+    // Toggle button state
+    menuBtn?.setAttribute('aria-expanded', (!isExpanded).toString());
+    menuBtn?.classList.toggle('is-active');
+    
+    // Toggle drawer
+    if (!isExpanded) {
+      drawer?.classList.remove('-translate-x-full');
+      overlay?.classList.remove('opacity-0', 'invisible');
+    } else {
+      drawer?.classList.add('-translate-x-full');
+      overlay?.classList.add('opacity-0', 'invisible');
+    }
+  }
+  
+  menuBtn?.addEventListener('click', toggleMenu);
+  overlay?.addEventListener('click', toggleMenu);
+  
+  // Close menu on route change (optional but good for SPA feel)
+  document.addEventListener('astro:after-swap', () => {
+    menuBtn?.setAttribute('aria-expanded', 'false');
+    menuBtn?.classList.remove('is-active');
+    drawer?.classList.add('-translate-x-full');
+    overlay?.classList.add('opacity-0', 'invisible');
   });
 </script>

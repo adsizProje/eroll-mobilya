@@ -4,7 +4,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
 <BaseLayout title="Hakkımızda | Erol Mobilya & Koltuk">
   <!-- Hero -->
-  <section class="py-20 bg-linear-to-bb from-bg-alt to-bg">
+  <section class="py-12 bg-linear-to-rfrom-bg-alt to-bg">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="max-w-3xl">
         <h1 class="text-4xl md:text-5xl font-bold mb-6">Hakkımızda</h1>
@@ -35,10 +35,12 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         </div>
         
         <div class="relative">
-          <div class="aspect-4/3 rounded-2xl bg-muted-3 overflow-hidden shadow-elegant-lg">
-            <div class="w-full h-full flex items-center justify-center text-fg-muted">
-              <span class="text-lg">Atölye Görseli</span>
-            </div>
+          <div class="rounded-2xl bg-muted-3 overflow-hidden shadow-elegant-lg">
+            <img 
+              src="/atolye.webp" 
+              alt="Erol Mobilya Atölye" 
+              class="w-full h-auto object-contain hover:scale-105 transition-transform duration-500"
+            />
           </div>
           <!-- Decorative element -->
           <div class="absolute -bottom-4 -right-4 w-32 h-32 bg-accent/20 rounded-2xl -z-10"></div>

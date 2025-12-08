@@ -10,7 +10,7 @@ try {
 }
 ---
 
-<header class="sticky top-0 z-50 bg-[var(--color-bg)]/95 backdrop-blur-sm border-b border-[var(--color-muted-3)]">
+<header class="sticky top-0 z-50 bg-bg/95 backdrop-blur-sm border-b border-muted-3">
   <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="flex items-center justify-between h-20">
       <!-- Logo -->
@@ -37,17 +37,17 @@ try {
             </svg>
           </button>
           <div class="absolute top-full left-0 pt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
-            <div class="bg-[var(--color-bg)] border border-[var(--color-muted-3)] rounded-lg shadow-[0_8px_40px_rgba(10,9,8,0.12),0_4px_16px_rgba(10,9,8,0.06)] py-2 min-w-[200px]">
-              <a href="/oturma-gruplari" class="block px-4 py-2 hover:bg-[var(--color-muted-3)] transition-colors">
+            <div class="bg-bg border border-muted-3 rounded-lg shadow-[0_8px_40px_rgba(10,9,8,0.12),0_4px_16px_rgba(10,9,8,0.06)] py-2 min-w-[200px]">
+              <a href="/oturma-gruplari" class="block px-4 py-2 hover:bg-muted-3 transition-colors">
                 Tümünü Gör
               </a>
               {oturmaGruplari.length > 0 && (
-                <div class="border-t border-[var(--color-muted-3)] my-2"></div>
+                <div class="border-t border-muted-3 my-2"></div>
               )}
               {oturmaGruplari.map((item) => (
                 <a 
                   href={`/oturma-gruplari/${item.slug}`} 
-                  class="block px-4 py-2 hover:bg-[var(--color-muted-3)] transition-colors"
+                  class="block px-4 py-2 hover:bg-muted-3 transition-colors"
                 >
                   {item.menuLabel || item.title}
                 </a>
@@ -56,13 +56,13 @@ try {
           </div>
         </div>
         
-        <a href="/iletisim" class="px-5 py-2.5 bg-[var(--color-accent)] text-white font-medium rounded-lg hover:bg-[var(--color-accent-dark)] transition-colors shadow-[0_4px_20px_rgba(10,9,8,0.08),0_2px_8px_rgba(10,9,8,0.04)]">İletişim</a>
+        <a href="/iletisim" class="px-5 py-2.5 bg-accent text-white font-medium rounded-lg hover:bg-accent-dark transition-colors shadow-[0_4px_20px_rgba(10,9,8,0.08),0_2px_8px_rgba(10,9,8,0.04)]">İletişim</a>
       </div>
       
       <!-- Mobile Menu Button -->
       <button 
         id="mobile-menu-btn"
-        class="md:hidden p-2 rounded-lg hover:bg-[var(--color-muted-3)] transition-colors"
+        class="md:hidden p-2 rounded-lg hover:bg-muted-3 transition-colors"
         aria-label="Menüyü aç"
       >
         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -74,19 +74,19 @@ try {
     <!-- Mobile Navigation -->
     <div id="mobile-menu" class="hidden md:hidden pb-4">
       <div class="flex flex-col gap-2">
-        <a href="/" class="px-4 py-3 rounded-lg hover:bg-[var(--color-muted-3)] transition-colors font-medium">Ana Sayfa</a>
-        <a href="/hakkimizda" class="px-4 py-3 rounded-lg hover:bg-[var(--color-muted-3)] transition-colors font-medium">Hakkımızda</a>
-        <a href="/vizyon-misyon" class="px-4 py-3 rounded-lg hover:bg-[var(--color-muted-3)] transition-colors font-medium">Vizyon & Misyon</a>
-        <a href="/oturma-gruplari" class="px-4 py-3 rounded-lg hover:bg-[var(--color-muted-3)] transition-colors font-medium">Oturma Grupları</a>
+        <a href="/" class="px-4 py-3 rounded-lg hover:bg-muted-3 transition-colors font-medium">Ana Sayfa</a>
+        <a href="/hakkimizda" class="px-4 py-3 rounded-lg hover:bg-muted-3 transition-colors font-medium">Hakkımızda</a>
+        <a href="/vizyon-misyon" class="px-4 py-3 rounded-lg hover:bg-muted-3 transition-colors font-medium">Vizyon & Misyon</a>
+        <a href="/oturma-gruplari" class="px-4 py-3 rounded-lg hover:bg-muted-3 transition-colors font-medium">Oturma Grupları</a>
         {oturmaGruplari.map((item) => (
           <a 
             href={`/oturma-gruplari/${item.slug}`} 
-            class="px-4 py-3 pl-8 text-sm rounded-lg hover:bg-[var(--color-muted-3)] transition-colors font-medium"
+            class="px-4 py-3 pl-8 text-sm rounded-lg hover:bg-muted-3 transition-colors font-medium"
           >
             {item.menuLabel || item.title}
           </a>
         ))}
-        <a href="/iletisim" class="px-4 py-3 mt-2 bg-[var(--color-accent)] text-white font-medium rounded-lg text-center hover:bg-[var(--color-accent-dark)] transition-colors">İletişim</a>
+        <a href="/iletisim" class="px-4 py-3 mt-2 bg-accent text-white font-medium rounded-lg text-center hover:bg-accent-dark transition-colors">İletişim</a>
       </div>
     </div>
   </nav>

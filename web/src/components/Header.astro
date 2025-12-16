@@ -1,8 +1,14 @@
 ---
-import { getOturmaGruplari } from "../lib/api";
+import { getOturmaGruplari, getStrapiImageUrl } from "../lib/api";
 
 // Build time'da Strapi'den oturma gruplarını çek
-let oturmaGruplari: { slug: string; menuLabel: string; title: string }[] = [];
+let oturmaGruplari: {
+  slug: string;
+  menuLabel: string;
+  title: string;
+  heroImage: any;
+  summary: string | null;
+}[] = [];
 try {
   oturmaGruplari = await getOturmaGruplari();
 } catch (e) {
@@ -17,9 +23,12 @@ try {
     <div class="grid grid-cols-[1fr_auto_1fr] items-center lg:h-full h-16">
       <!-- Desktop Navigation (Left) -->
       <div class="hidden md:flex items-center gap-8 justify-start">
-        <!-- Oturma Grupları Dropdown -->
+        <!-- Oturma Grupları Mega Menu -->
         <div class="relative group">
-          <button class="nav-link flex items-center gap-1 text-accent">
+          <a
+            href="/oturma-gruplari"
+            class="nav-link flex items-center gap-1 text-accent"
+          >
             Oturma Grupları
             <svg
               class="w-4 h-4 transition-transform group-hover:rotate-180"
@@ -33,33 +42,69 @@ try {
                 stroke-width="2"
                 d="M19 9l-7 7-7-7"></path>
             </svg>
-          </button>
+          </a>
           <div
-            class="absolute top-full left-0 pt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200"
+            class="absolute top-full w-full left-0 pt-3 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300"
           >
             <div
-              class="bg-fg border border-accent-dark/35 rounded-lg shadow-[0_8px_40px_rgba(10,9,8,0.24),0_4px_16px_rgba(10,9,8,0.18)] py-2 min-w-[220px]"
+              class="bg-[#1a1a1a]/98 border-t border-accent-dark/35 rounded-b-xl shadow-[0_8px_40px_rgba(10,9,8,0.24),0_4px_16px_rgba(10,9,8,0.18)] p-6 min-w-[600px] max-w-[700px] relative"
             >
               <a
                 href="/oturma-gruplari"
-                class="block px-4 py-2 text-accent hover:bg-white/5 transition-colors"
+                class="absolute top-4 right-4 px-3 py-1.5 text-xs text-accent font-medium hover:bg-white/10 transition-colors rounded-md border border-accent-dark/30"
               >
                 Tümünü Gör
               </a>
               {
                 oturmaGruplari.length > 0 && (
-                  <div class="border-t border-accent-dark/25 my-2" />
+                  <div class="grid grid-cols-2 gap-3 mt-10">
+                    {oturmaGruplari.map((item) => {
+                      const imageUrl = item.heroImage
+                        ? getStrapiImageUrl(item.heroImage, "small")
+                        : null;
+                      return (
+                        <a
+                          href={`/oturma-gruplari/${item.slug}`}
+                          class="group/item flex items-center gap-3 p-3 rounded-lg hover:bg-white/5 transition-all duration-200 border border-accent/30"
+                        >
+                          {imageUrl && (
+                            <div class="w-16 h-16 shrink-0 rounded-lg overflow-hidden bg-muted-3">
+                              <img
+                                src={imageUrl}
+                                alt={item.menuLabel || item.title}
+                                class="w-full h-full object-cover"
+                                loading="lazy"
+                              />
+                            </div>
+                          )}
+                          <div class="flex-1 min-w-0">
+                            <div class="font-medium text-accent group-hover/item:text-accent-light transition-colors">
+                              {item.menuLabel || item.title}
+                            </div>
+                            {item.summary && (
+                              <div class="text-xs text-accent/70 mt-1 line-clamp-1">
+                                {item.summary}
+                              </div>
+                            )}
+                          </div>
+                          <svg
+                            class="w-5 h-5 text-accent shrink-0 transition-transform group-hover/item:translate-x-1"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              d="M9 5l7 7-7 7"
+                            />
+                          </svg>
+                        </a>
+                      );
+                    })}
+                  </div>
                 )
-              }
-              {
-                oturmaGruplari.map((item) => (
-                  <a
-                    href={`/oturma-gruplari/${item.slug}`}
-                    class="block px-4 py-2 text-accent hover:bg-white/5 transition-colors"
-                  >
-                    {item.menuLabel || item.title}
-                  </a>
-                ))
               }
             </div>
           </div>
@@ -132,54 +177,71 @@ try {
 <!-- Mobile Navigation Drawer -->
 <div
   id="mobile-drawer"
-  class="fixed top-16 bottom-0 left-0 w-[85%] max-w-sm bg-fg z-[95] transform -translate-x-full transition-transform duration-300 ease-in-out md:hidden shadow-2xl flex flex-col pt-10 px-6 overflow-y-auto text-accent"
+  class="fixed top-16 bottom-0 left-0 w-[85%] max-w-sm bg-fg z-[95] transform -translate-x-full transition-transform duration-300 ease-in-out md:hidden shadow-2xl flex flex-col pt-6 px-4 overflow-y-auto text-accent"
 >
   <nav class="flex flex-col">
     <a
       href="/"
-      class="px-4 py-3 rounded-lg hover:bg-white/5 transition-colors font-medium text-lg"
+      class="px-3 py-2 rounded-lg hover:bg-white/5 transition-colors font-medium text-base"
       >Ana Sayfa</a
     >
     <a
       href="/hakkimizda"
-      class="px-4 py-3 rounded-lg hover:bg-white/5 transition-colors font-medium text-lg"
+      class="px-3 py-2 rounded-lg hover:bg-white/5 transition-colors font-medium text-base"
       >Hakkımızda</a
     >
     <a
       href="/vizyon-misyon"
-      class="px-4 py-3 rounded-lg hover:bg-white/5 transition-colors font-medium text-lg"
+      class="px-3 py-2 rounded-lg hover:bg-white/5 transition-colors font-medium text-base"
       >Vizyon & Misyon</a
     >
 
-    <div class="px-4 py-3 font-medium text-lg text-accent">Oturma Grupları</div>
-    <div class="pl-4 flex flex-col gap-1 border-l-2 border-accent-dark/35 ml-4">
+    <div class="px-3 py-2 font-medium text-base text-accent mt-4">
+      Oturma Grupları
+    </div>
+    <div class="pl-3 flex flex-col gap-1 border-l-2 border-accent-dark/35 ml-3">
       <a
         href="/oturma-gruplari"
-        class="px-4 py-2 rounded-lg hover:bg-white/5 transition-colors"
+        class="px-3 py-1.5 rounded-lg hover:bg-white/5 transition-colors text-sm"
         >Tümünü Gör</a
       >
       {
-        oturmaGruplari.map((item) => (
-          <a
-            href={`/oturma-gruplari/${item.slug}`}
-            class="px-4 py-2 rounded-lg hover:bg-white/5 transition-colors"
-          >
-            {item.menuLabel || item.title}
-          </a>
-        ))
+        oturmaGruplari.map((item) => {
+          const imageUrl = item.heroImage
+            ? getStrapiImageUrl(item.heroImage, "thumbnail")
+            : null;
+          return (
+            <a
+              href={`/oturma-gruplari/${item.slug}`}
+              class="flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-white/5 transition-colors text-sm"
+            >
+              {imageUrl && (
+                <div class="w-10 h-10 shrink-0 rounded overflow-hidden bg-muted-3">
+                  <img
+                    src={imageUrl}
+                    alt={item.menuLabel || item.title}
+                    class="w-full h-full object-cover"
+                    loading="lazy"
+                  />
+                </div>
+              )}
+              <span>{item.menuLabel || item.title}</span>
+            </a>
+          );
+        })
       }
     </div>
   </nav>
 
-  <div class="mt-auto mb-8 space-y-4">
+  <div class="mt-auto mb-6 space-y-3">
     <!-- Telefon ve WhatsApp Butonları -->
-    <div class="flex flex-col gap-3 px-4">
+    <div class="flex flex-col gap-2 px-3">
       <a
         href="tel:+905301227623"
-        class="flex items-center justify-center gap-2 px-4 py-3 bg-accent text-fg font-semibold rounded-lg hover:bg-accent-light transition-colors"
+        class="flex items-center justify-center gap-1.5 px-3 py-2 bg-accent text-fg font-medium rounded-lg hover:bg-accent-light transition-colors text-sm"
       >
         <svg
-          class="w-5 h-5"
+          class="w-4 h-4"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -197,9 +259,9 @@ try {
         href="https://wa.me/905301227623"
         target="_blank"
         rel="noopener noreferrer"
-        class="flex items-center justify-center gap-2 px-4 py-3 bg-[#25D366] text-white font-semibold rounded-lg hover:bg-[#128C7E] transition-colors"
+        class="flex items-center justify-center gap-1.5 px-3 py-2 bg-[#25D366] text-white font-medium rounded-lg hover:bg-[#128C7E] transition-colors text-sm"
       >
-        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
           <path
             d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.503-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"
           ></path>
@@ -209,7 +271,7 @@ try {
     </div>
 
     <!-- Copyright -->
-    <p class="text-sm text-accent/80 text-center">
+    <p class="text-xs text-accent/80 text-center">
       &copy; {new Date().getFullYear()} Eroll Mobilya
     </p>
   </div>

@@ -1,14 +1,17 @@
 ---
-import '../styles/global.css';
-import Header from '../components/Header.astro';
-import Footer from '../components/Footer.astro';
+import "../styles/global.css";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
 
 interface Props {
   title: string;
   description?: string;
 }
 
-const { title, description = 'Erol Mobilya & Koltuk - Kaliteli mobilya ve koltuk imalatı, toptan ve perakende satış. Elazığ\'ın güvenilir mobilya firması.' } = Astro.props;
+const {
+  title,
+  description = "Eroll Mobilya & Koltuk - Kaliteli mobilya ve koltuk imalatı, toptan ve perakende satış. Elazığ'ın güvenilir mobilya firması.",
+} = Astro.props;
 ---
 
 <!doctype html>
@@ -18,22 +21,22 @@ const { title, description = 'Erol Mobilya & Koltuk - Kaliteli mobilya ve koltuk
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content={description} />
     <meta name="theme-color" content="#B19877" />
-    
+
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
-    
+
     <!-- Open Graph -->
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />
-    <meta property="og:site_name" content="Erol Mobilya & Koltuk" />
-    
+    <meta property="og:site_name" content="Eroll Mobilya & Koltuk" />
+
     <title>{title}</title>
   </head>
   <body class="min-h-screen flex flex-col">
     <Header />
-    <main class="flex-1">
+    <main class="flex-1 pt-16">
       <slot />
     </main>
     <Footer />
@@ -43,12 +46,17 @@ const { title, description = 'Erol Mobilya & Koltuk - Kaliteli mobilya ve koltuk
 <style is:global>
   /* Page transition animations */
   @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
-  
+
   main {
     animation: fadeIn 0.4s ease-out;
   }
 </style>
-

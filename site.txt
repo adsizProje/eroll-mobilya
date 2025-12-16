@@ -9,7 +9,7 @@ Hizmetler:
 Toptan ve Perakende
 
 contact bilgileri
-tel: 0532 771 32 24
+tel: 0530 122 76 23
 instagram: https://www.instagram.com/erollmobilya/
 facebook: https://www.facebook.com/agahmob/
 
@@ -25,11 +25,11 @@ genel site promptu ve içerikleri:
 
 Website Design Prompt for “Erol Mobilya & Koltuk” — erollmobilya.com
 
-Design an elegant, modern, and refined website for Erol Mobilya & Koltuk, a furniture and sofa manufacturer. The visual style should feel high-quality, warm, and sophisticated.
+Design an elegant, modern, and refined website for Eroll Mobilya & Koltuk, a furniture and sofa manufacturer. The visual style should feel high-quality, warm, and sophisticated.
 
 Brand & Colors
 
-Brand Name: Erol Mobilya & Koltuk
+Brand Name: Eroll Mobilya & Koltuk
 
 Domain: erollmobilya.com
 

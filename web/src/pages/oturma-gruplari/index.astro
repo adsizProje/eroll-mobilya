@@ -23,9 +23,24 @@ const oturmaGruplari = await getOturmaGruplari();
   <!-- Products Grid -->
   <section class="py-16">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* Mobile view toggle */}
+      <div class="flex justify-end mb-4 sm:hidden">
+        <button
+          id="view-toggle"
+          class="flex items-center gap-2 px-3 py-2 rounded-lg border border-muted-3 text-fg-muted hover:border-accent hover:text-accent transition-colors text-sm"
+          aria-label="Görünüm değiştir"
+        >
+          <svg id="icon-grid" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+          </svg>
+          <svg id="icon-list" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
+      </div>
       {
         oturmaGruplari.length > 0 ? (
-          <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div id="products-grid" class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-8">
             {oturmaGruplari.map((product, index) => (
               <a
                 href={`/oturma-gruplari/${product.slug}`}
@@ -38,7 +53,7 @@ const oturmaGruplari = await getOturmaGruplari();
                     <img
                       src={getStrapiImageUrl(product.anaGorsel, "medium")}
                       alt={product.baslik}
-                      class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                      class="w-full h-full object-contain transition-transform duration-500 group-hover:scale-110"
                       loading={index < 6 ? "eager" : "lazy"}
                     />
                   ) : (
@@ -192,6 +207,31 @@ const oturmaGruplari = await getOturmaGruplari();
   );
 
   animatedElements.forEach((el) => observer.observe(el));
+
+  // Mobile view toggle (grid-cols-2 <-> grid-cols-1)
+  const viewToggle = document.getElementById("view-toggle");
+  const productsGrid = document.getElementById("products-grid");
+  const iconGrid = document.getElementById("icon-grid");
+  const iconList = document.getElementById("icon-list");
+
+  if (viewToggle && productsGrid) {
+    let isDouble = true; // default: 2 columns
+
+    viewToggle.addEventListener("click", () => {
+      isDouble = !isDouble;
+      if (isDouble) {
+        productsGrid.classList.remove("grid-cols-1");
+        productsGrid.classList.add("grid-cols-2");
+        iconGrid?.classList.add("hidden");
+        iconList?.classList.remove("hidden");
+      } else {
+        productsGrid.classList.remove("grid-cols-2");
+        productsGrid.classList.add("grid-cols-1");
+        iconGrid?.classList.remove("hidden");
+        iconList?.classList.add("hidden");
+      }
+    });
+  }
 </script>
 
 <style is:global>

@@ -1,6 +1,6 @@
 /**
  * Strapi API Client
- * Build-time'da Strapi'den veri çekmek için kullanılır
+ * Build-time'da Strapi'den veri cekmek icin kullanilir
  */
 
 const STRAPI_URL = import.meta.env.STRAPI_URL || 'http://localhost:1337';
@@ -32,22 +32,56 @@ interface StrapiImage {
   };
 }
 
+export interface RenkVaryanti {
+  id: number;
+  renkAdi: string;
+  renkKodu: string | null;
+  gorsel: StrapiImage | null;
+  resimSirasi: number;
+}
+
 export interface OturmaGrubu {
   id: number;
   documentId: string;
-  title: string;
+  baslik: string;
   slug: string;
-  menuLabel: string | null;
-  summary: string | null;
-  bodyRich: any; // Strapi blocks content
-  dimensions: string | null;
-  materials: string | null;
-  order: number;
-  heroImage: StrapiImage | null;
-  gallery: StrapiImage[];
+  detayliAciklama: any; // Strapi blocks content
+  malzemeBilgisi: string | null;
+  anaGorsel: StrapiImage | null;
+  galeriGorselleri: StrapiImage[];
+  anasaydaGoster: boolean;
+  renkVaryantlari: RenkVaryanti[];
   publishedAt: string | null;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface UrunDetayBolumu {
+  bolumBaslik: string | null;
+  bolumAciklama: string | null;
+  bolumGorselleri: StrapiImage[];
+}
+
+export interface UstalikGorseli {
+  id: number;
+  gorsel: StrapiImage;
+  etiket: string | null;
+}
+
+export interface AnasayfaAyarlari {
+  bolumBaslik: string | null;
+  bolumAciklama: string | null;
+  bolumGorselleri: UstalikGorseli[];
+}
+
+export interface VideoItem {
+  id: number;
+  baslik: string;
+  video: StrapiImage; // media type (video)
+}
+
+export interface HakkimizdaAyarlari {
+  videolar: VideoItem[];
 }
 
 async function fetchAPI<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
@@ -68,42 +102,90 @@ async function fetchAPI<T>(endpoint: string, options: RequestInit = {}): Promise
   });
 
   if (!response.ok) {
-    throw new Error(`Strapi API error: ${response.status} ${response.statusText}`);
+    const body = await response.text();
+    let errMsg = `Strapi API error: ${response.status} ${response.statusText}`;
+    try {
+      const parsed = JSON.parse(body);
+      if (parsed.error?.message) errMsg += ` - ${parsed.error.message}`;
+    } catch {
+      if (body) errMsg += ` - ${body.slice(0, 200)}`;
+    }
+    throw new Error(errMsg);
   }
 
   return response.json();
 }
 
 /**
- * Tüm oturma gruplarını getir (liste için)
+ * Strapi blocks iceriginden ilk paragrafin metnini cikart (ozet olarak kullanilir)
  */
-export async function getOturmaGruplari(): Promise<{ slug: string; menuLabel: string; title: string; summary: string | null; heroImage: StrapiImage | null; order: number }[]> {
+export function blocksToSummary(blocks: any[], maxLength: number = 160): string {
+  if (!blocks || !Array.isArray(blocks)) return '';
+
+  for (const block of blocks) {
+    if (block.type === 'paragraph' && block.children) {
+      const text = block.children
+        .map((child: any) => child.text || '')
+        .join('')
+        .trim();
+      if (text) {
+        return text.length > maxLength ? text.slice(0, maxLength) + '...' : text;
+      }
+    }
+  }
+
+  return '';
+}
+
+/**
+ * Tum oturma gruplarini getir (liste icin)
+ */
+export async function getOturmaGruplari(): Promise<{ slug: string; baslik: string; anaGorsel: StrapiImage | null; detayliAciklama: any }[]> {
   try {
     const response = await fetchAPI<StrapiResponse<OturmaGrubu[]>>(
-      '/oturma-gruplari?populate=heroImage&sort=order:asc&filters[publishedAt][$notNull]=true'
+      '/oturma-gruplari?populate=anaGorsel&sort=createdAt:desc&filters[publishedAt][$notNull]=true'
     );
 
     return response.data.map((item) => ({
       slug: item.slug,
-      menuLabel: item.menuLabel || item.title,
-      title: item.title,
-      summary: item.summary,
-      heroImage: item.heroImage,
-      order: item.order,
+      baslik: item.baslik,
+      anaGorsel: item.anaGorsel,
+      detayliAciklama: item.detayliAciklama,
     }));
   } catch (error) {
-    console.error('Oturma grupları alınamadı:', error);
+    console.error('Oturma gruplari alinamadi:', error);
     return [];
   }
 }
 
 /**
- * Tekil oturma grubu getir (detay sayfası için)
+ * Anasayfada gosterilecek urunleri getir (anasaydaGoster=true)
+ */
+export async function getAnasaydaUrunleri(): Promise<{ slug: string; baslik: string; anaGorsel: StrapiImage | null; detayliAciklama: any }[]> {
+  try {
+    const response = await fetchAPI<StrapiResponse<OturmaGrubu[]>>(
+      '/oturma-gruplari?populate=anaGorsel&sort=createdAt:desc&filters[publishedAt][$notNull]=true&filters[anasaydaGoster][$eq]=true'
+    );
+
+    return response.data.map((item) => ({
+      slug: item.slug,
+      baslik: item.baslik,
+      anaGorsel: item.anaGorsel,
+      detayliAciklama: item.detayliAciklama,
+    }));
+  } catch (error) {
+    console.error('Anasayfa urunleri alinamadi:', error);
+    return [];
+  }
+}
+
+/**
+ * Tekil oturma grubu getir (detay sayfasi icin)
  */
 export async function getOturmaGrubuBySlug(slug: string): Promise<OturmaGrubu | null> {
   try {
     const response = await fetchAPI<StrapiResponse<OturmaGrubu[]>>(
-      `/oturma-gruplari?filters[slug][$eq]=${slug}&populate=*`
+      `/oturma-gruplari?filters[slug][$eq]=${encodeURIComponent(slug)}&filters[publishedAt][$notNull]=true&populate[anaGorsel]=true&populate[galeriGorselleri]=true&populate[renkVaryantlari][populate][gorsel]=true`
     );
 
     if (response.data.length === 0) {
@@ -112,13 +194,13 @@ export async function getOturmaGrubuBySlug(slug: string): Promise<OturmaGrubu | 
 
     return response.data[0];
   } catch (error) {
-    console.error(`Oturma grubu alınamadı (${slug}):`, error);
+    console.error(`Oturma grubu alinamadi (${slug}):`, error);
     return null;
   }
 }
 
 /**
- * Tüm oturma grubu slug'larını getir (SSG için)
+ * Tum oturma grubu slug'larini getir (SSG icin)
  */
 export async function getAllOturmaGrubuSlugs(): Promise<string[]> {
   try {
@@ -128,13 +210,61 @@ export async function getAllOturmaGrubuSlugs(): Promise<string[]> {
 
     return response.data.map((item) => item.slug);
   } catch (error) {
-    console.error('Oturma grubu slug\'ları alınamadı:', error);
+    console.error('Oturma grubu slug\'lari alinamadi:', error);
     return [];
   }
 }
 
 /**
- * Strapi blocks içeriğini HTML'e dönüştür
+ * Urun Detay Bolumu Single Type'i getir
+ */
+export async function getUrunDetayBolumu(): Promise<UrunDetayBolumu | null> {
+  try {
+    const response = await fetchAPI<StrapiResponse<UrunDetayBolumu>>(
+      '/urun-detay-bolumu?populate=bolumGorselleri'
+    );
+
+    return response.data;
+  } catch (error) {
+    console.error('Urun detay bolumu alinamadi:', error);
+    return null;
+  }
+}
+
+/**
+ * Anasayfa Ayarlari Single Type'i getir
+ */
+export async function getAnasayfaAyarlari(): Promise<AnasayfaAyarlari | null> {
+  try {
+    const response = await fetchAPI<StrapiResponse<AnasayfaAyarlari>>(
+      '/anasayfa-ayarlari?populate[bolumGorselleri][populate]=gorsel'
+    );
+
+    return response.data;
+  } catch (error) {
+    console.error('Anasayfa ayarlari alinamadi:', error);
+    return null;
+  }
+}
+
+/**
+ * Hakkimizda Ayarlari Single Type'i getir
+ */
+export async function getHakkimizdaAyarlari(): Promise<HakkimizdaAyarlari | null> {
+  try {
+    const response = await fetchAPI<StrapiResponse<HakkimizdaAyarlari>>(
+      '/hakkimizda-ayarlari?populate[videolar][populate]=video'
+    );
+
+    return response.data;
+  } catch (error) {
+    console.error('Hakkimizda ayarlari alinamadi:', error);
+    return null;
+  }
+}
+
+/**
+ * Strapi blocks icerigini HTML'e donustur
  */
 export function blocksToHtml(blocks: any[]): string {
   if (!blocks || !Array.isArray(blocks)) {
@@ -154,12 +284,12 @@ export function blocksToHtml(blocks: any[]): string {
           return content;
         }).join('') || '';
         return `<p>${text}</p>`;
-      
+
       case 'heading':
         const level = block.level || 2;
         const headingText = block.children?.map((child: any) => child.text || '').join('') || '';
         return `<h${level}>${headingText}</h${level}>`;
-      
+
       case 'list':
         const listTag = block.format === 'ordered' ? 'ol' : 'ul';
         const listItems = block.children?.map((item: any) => {
@@ -167,16 +297,16 @@ export function blocksToHtml(blocks: any[]): string {
           return `<li>${itemText}</li>`;
         }).join('') || '';
         return `<${listTag}>${listItems}</${listTag}>`;
-      
+
       case 'quote':
         const quoteText = block.children?.map((child: any) => child.text || '').join('') || '';
         return `<blockquote>${quoteText}</blockquote>`;
-      
+
       case 'image':
         const imgUrl = block.image?.url ? `${STRAPI_URL}${block.image.url}` : '';
         const imgAlt = block.image?.alternativeText || '';
         return imgUrl ? `<figure><img src="${imgUrl}" alt="${imgAlt}" loading="lazy" />${block.image?.caption ? `<figcaption>${block.image.caption}</figcaption>` : ''}</figure>` : '';
-      
+
       default:
         return '';
     }
@@ -184,7 +314,7 @@ export function blocksToHtml(blocks: any[]): string {
 }
 
 /**
- * Strapi görsel URL'ini tam URL'e çevir
+ * Strapi gorsel URL'ini tam URL'e cevir
  */
 export function getStrapiImageUrl(image: StrapiImage | null, size?: 'thumbnail' | 'small' | 'medium' | 'large'): string {
   if (!image) {
@@ -192,16 +322,14 @@ export function getStrapiImageUrl(image: StrapiImage | null, size?: 'thumbnail' 
   }
 
   let url = image.url;
-  
+
   if (size && image.formats?.[size]) {
     url = image.formats[size]!.url;
   }
 
-  // Eğer URL zaten http ile başlıyorsa olduğu gibi döndür
   if (url.startsWith('http')) {
     return url;
   }
 
   return `${STRAPI_URL}${url}`;
 }
-

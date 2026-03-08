@@ -10,8 +10,10 @@ interface Props {
 
 const {
   title,
-  description = "Eroll Mobilya & Koltuk - Kaliteli mobilya ve koltuk imalatı, toptan ve perakende satış. Elazığ'ın güvenilir mobilya firması.",
+  description = "Eroll Mobilya & Koltuk - Elazığ mobilya imalatı. Oturma grubu, koltuk takımı, salon takımı ve köşe koltuk modelleri. Toptan ve perakende satış, özel tasarım mobilya siparişi.",
 } = Astro.props;
+
+const isIletisim = Astro.url.pathname.startsWith('/iletisim');
 ---
 
 <!doctype html>
@@ -39,7 +41,7 @@ const {
     <main class="flex-1 pt-16">
       <slot />
     </main>
-    <Footer />
+    <Footer hideCta={isIletisim} />
   </body>
 </html>
 

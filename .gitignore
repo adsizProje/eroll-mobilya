@@ -1,5 +1,5 @@
-# CMS (ayrı repoda)
-cms/
+# Content
+content/
 
 # Environment files
 .env

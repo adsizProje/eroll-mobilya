@@ -4,10 +4,9 @@ import { getOturmaGruplari, getStrapiImageUrl } from "../lib/api";
 // Build time'da Strapi'den oturma gruplarını çek
 let oturmaGruplari: {
   slug: string;
-  menuLabel: string;
-  title: string;
-  heroImage: any;
-  summary: string | null;
+  baslik: string;
+  anaGorsel: any;
+  detayliAciklama: any;
 }[] = [];
 try {
   oturmaGruplari = await getOturmaGruplari();
@@ -59,8 +58,8 @@ try {
                 oturmaGruplari.length > 0 && (
                   <div class="grid grid-cols-2 gap-3 mt-10">
                     {oturmaGruplari.map((item) => {
-                      const imageUrl = item.heroImage
-                        ? getStrapiImageUrl(item.heroImage, "small")
+                      const imageUrl = item.anaGorsel
+                        ? getStrapiImageUrl(item.anaGorsel, "small")
                         : null;
                       return (
                         <a
@@ -71,7 +70,7 @@ try {
                             <div class="w-16 h-16 shrink-0 rounded-lg overflow-hidden bg-muted-3">
                               <img
                                 src={imageUrl}
-                                alt={item.menuLabel || item.title}
+                                alt={item.baslik}
                                 class="w-full h-full object-cover"
                                 loading="lazy"
                               />
@@ -79,13 +78,8 @@ try {
                           )}
                           <div class="flex-1 min-w-0">
                             <div class="font-medium text-accent group-hover/item:text-accent-light transition-colors">
-                              {item.menuLabel || item.title}
+                              {item.baslik}
                             </div>
-                            {item.summary && (
-                              <div class="text-xs text-accent/70 mt-1 line-clamp-1">
-                                {item.summary}
-                              </div>
-                            )}
                           </div>
                           <svg
                             class="w-5 h-5 text-accent shrink-0 transition-transform group-hover/item:translate-x-1"
@@ -207,8 +201,8 @@ try {
       >
       {
         oturmaGruplari.map((item) => {
-          const imageUrl = item.heroImage
-            ? getStrapiImageUrl(item.heroImage, "thumbnail")
+          const imageUrl = item.anaGorsel
+            ? getStrapiImageUrl(item.anaGorsel, "thumbnail")
             : null;
           return (
             <a
@@ -219,13 +213,13 @@ try {
                 <div class="w-10 h-10 shrink-0 rounded overflow-hidden bg-muted-3">
                   <img
                     src={imageUrl}
-                    alt={item.menuLabel || item.title}
+                    alt={item.baslik}
                     class="w-full h-full object-cover"
                     loading="lazy"
                   />
                 </div>
               )}
-              <span>{item.menuLabel || item.title}</span>
+              <span>{item.baslik}</span>
             </a>
           );
         })

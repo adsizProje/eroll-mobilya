@@ -1,13 +1,23 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
-import { getOturmaGruplari, getStrapiImageUrl } from "../lib/api";
+import { getOturmaGruplari, getAnasaydaUrunleri, getAnasayfaAyarlari, getStrapiImageUrl, blocksToSummary } from "../lib/api";
 
-// Build time'da oturma gruplarını çek
+// Build time'da oturma gruplarini cek
 const oturmaGruplari = await getOturmaGruplari();
-const featuredProducts = oturmaGruplari.slice(0, 4);
+
+// Anasayfada gosterilecek urunler (tikli olanlar, yoksa ilk 4)
+const anasaydaUrunleri = await getAnasaydaUrunleri();
+const featuredProducts = anasaydaUrunleri.length > 0 ? anasaydaUrunleri : oturmaGruplari.slice(0, 4);
+
+// Hero fotograflari icin anaGorsel'i olan urunler
+const heroUrunler = oturmaGruplari.filter(p => p.anaGorsel);
+
+// Anasayfa ayarlari
+const anasayfaAyarlari = await getAnasayfaAyarlari();
+const bolumGorselleri = anasayfaAyarlari?.bolumGorselleri || [];
 ---
 
-<BaseLayout title="Eroll Mobilya & Koltuk | Kaliteli Mobilya İmalatı">
+<BaseLayout title="Eroll Mobilya & Koltuk | Elazığ Mobilya İmalatı, Oturma Grubu ve Koltuk Takımı" description="Eroll Mobilya & Koltuk - Elazığ'da kaliteli mobilya imalatı, oturma grubu, koltuk takımı ve salon takımı. Toptan ve perakende satış. Özel tasarım mobilya siparişi.">
   <!-- Hero Section -->
   <section class="relative min-h-[70vh] flex items-center overflow-hidden">
     <!-- Background -->
@@ -27,7 +37,7 @@ const featuredProducts = oturmaGruplari.slice(0, 4);
           >
             <span class="w-2 h-2 bg-accent rounded-full animate-pulse"></span>
             <span class="text-sm font-medium text-accent-dark"
-              >İmalat • Toptan • Perakende</span
+              >İmalat &bull; Toptan &bull; Perakende</span
             >
           </div>
 
@@ -38,7 +48,7 @@ const featuredProducts = oturmaGruplari.slice(0, 4);
             <span
               class="text-accent inline-flex flex-col h-[1.35em] overflow-hidden align-middle -mt-1"
             >
-              <span class="word-rotator *:block">
+              <span class="word-rotator *:block" style="will-change: transform;">
                 <span>Zarafet</span>
                 <span>Şıklık</span>
                 <span>Konfor</span>
@@ -99,49 +109,46 @@ const featuredProducts = oturmaGruplari.slice(0, 4);
           </div>
 
           <div class="grid grid-cols-2 gap-4 lg:gap-6 h-full">
-            <!-- Column 1 - Fast Scroll -->
+            <!-- Column 1 -->
             <div class="flex flex-col gap-4 lg:gap-6 animate-scroll-vertical">
-              <img
-                src="/hero1.jpg"
-                class="w-full h-64 object-cover rounded-2xl shadow-lg"
-                alt="Mobilya"
-              />
-              <img
-                src="/hero2.jpg"
-                class="w-full h-80 object-cover rounded-2xl shadow-lg"
-                alt="Mobilya"
-              />
-              <img
-                src="/hero3.jpg"
-                class="w-full h-64 object-cover rounded-2xl shadow-lg"
-                alt="Mobilya"
-              />
-              <img
-                src="/hero1.jpg"
-                class="w-full h-72 object-cover rounded-2xl shadow-lg"
-                alt="Mobilya"
-              />
-              <!-- Duplicate set for loop -->
-              <img
-                src="/hero1.jpg"
-                class="w-full h-64 object-cover rounded-2xl shadow-lg"
-                alt="Mobilya"
-              />
-              <img
-                src="/hero2.jpg"
-                class="w-full h-80 object-cover rounded-2xl shadow-lg"
-                alt="Mobilya"
-              />
-              <img
-                src="/hero3.jpg"
-                class="w-full h-64 object-cover rounded-2xl shadow-lg"
-                alt="Mobilya"
-              />
-              <img
-                src="/hero1.jpg"
-                class="w-full h-72 object-cover rounded-2xl shadow-lg"
-                alt="Mobilya"
-              />
+              {heroUrunler.length > 0 ? (
+                <>
+                  {heroUrunler.map((product, i) => (
+                    <a href={`/oturma-gruplari/${product.slug}`} class="relative block group shrink-0">
+                      <img
+                        src={getStrapiImageUrl(product.anaGorsel, "medium")}
+                        class={`w-full ${i % 3 === 0 ? 'h-64' : i % 3 === 1 ? 'h-80' : 'h-72'} object-cover rounded-2xl shadow-lg`}
+                        alt={product.baslik}
+                      />
+                      <div class="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors rounded-2xl flex items-end justify-center pb-4 opacity-0 group-hover:opacity-100">
+                        <span class="text-white font-semibold text-sm bg-black/60 px-3 py-1 rounded-full">{product.baslik}</span>
+                      </div>
+                    </a>
+                  ))}
+                  {/* Duplicate for infinite scroll */}
+                  {heroUrunler.map((product, i) => (
+                    <a href={`/oturma-gruplari/${product.slug}`} class="relative block group shrink-0">
+                      <img
+                        src={getStrapiImageUrl(product.anaGorsel, "medium")}
+                        class={`w-full ${i % 3 === 0 ? 'h-64' : i % 3 === 1 ? 'h-80' : 'h-72'} object-cover rounded-2xl shadow-lg`}
+                        alt={product.baslik}
+                      />
+                      <div class="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors rounded-2xl flex items-end justify-center pb-4 opacity-0 group-hover:opacity-100">
+                        <span class="text-white font-semibold text-sm bg-black/60 px-3 py-1 rounded-full">{product.baslik}</span>
+                      </div>
+                    </a>
+                  ))}
+                </>
+              ) : (
+                <>
+                  <img src="/hero1.jpg" class="w-full h-64 object-cover rounded-2xl shadow-lg" alt="Mobilya" />
+                  <img src="/hero2.jpg" class="w-full h-80 object-cover rounded-2xl shadow-lg" alt="Mobilya" />
+                  <img src="/hero3.jpg" class="w-full h-64 object-cover rounded-2xl shadow-lg" alt="Mobilya" />
+                  <img src="/hero1.jpg" class="w-full h-64 object-cover rounded-2xl shadow-lg" alt="Mobilya" />
+                  <img src="/hero2.jpg" class="w-full h-80 object-cover rounded-2xl shadow-lg" alt="Mobilya" />
+                  <img src="/hero3.jpg" class="w-full h-64 object-cover rounded-2xl shadow-lg" alt="Mobilya" />
+                </>
+              )}
             </div>
 
             <!-- Column 2 - Slower Scroll -->
@@ -149,47 +156,43 @@ const featuredProducts = oturmaGruplari.slice(0, 4);
               class="flex flex-col gap-4 lg:gap-6 animate-scroll-vertical"
               style="animation-duration: 35s; transform: translateY(-30%);"
             >
-              <img
-                src="/hero2.jpg"
-                class="w-full h-72 object-cover rounded-2xl shadow-lg"
-                alt="Mobilya"
-              />
-              <img
-                src="/hero3.jpg"
-                class="w-full h-64 object-cover rounded-2xl shadow-lg"
-                alt="Mobilya"
-              />
-              <img
-                src="/hero1.jpg"
-                class="w-full h-80 object-cover rounded-2xl shadow-lg"
-                alt="Mobilya"
-              />
-              <img
-                src="/hero3.jpg"
-                class="w-full h-64 object-cover rounded-2xl shadow-lg"
-                alt="Mobilya"
-              />
-              <!-- Duplicate set for loop -->
-              <img
-                src="/hero2.jpg"
-                class="w-full h-72 object-cover rounded-2xl shadow-lg"
-                alt="Mobilya"
-              />
-              <img
-                src="/hero3.jpg"
-                class="w-full h-64 object-cover rounded-2xl shadow-lg"
-                alt="Mobilya"
-              />
-              <img
-                src="/hero1.jpg"
-                class="w-full h-80 object-cover rounded-2xl shadow-lg"
-                alt="Mobilya"
-              />
-              <img
-                src="/hero3.jpg"
-                class="w-full h-64 object-cover rounded-2xl shadow-lg"
-                alt="Mobilya"
-              />
+              {heroUrunler.length > 0 ? (
+                <>
+                  {[...heroUrunler].reverse().map((product, i) => (
+                    <a href={`/oturma-gruplari/${product.slug}`} class="relative block group shrink-0">
+                      <img
+                        src={getStrapiImageUrl(product.anaGorsel, "medium")}
+                        class={`w-full ${i % 3 === 0 ? 'h-72' : i % 3 === 1 ? 'h-64' : 'h-80'} object-cover rounded-2xl shadow-lg`}
+                        alt={product.baslik}
+                      />
+                      <div class="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors rounded-2xl flex items-end justify-center pb-4 opacity-0 group-hover:opacity-100">
+                        <span class="text-white font-semibold text-sm bg-black/60 px-3 py-1 rounded-full">{product.baslik}</span>
+                      </div>
+                    </a>
+                  ))}
+                  {[...heroUrunler].reverse().map((product, i) => (
+                    <a href={`/oturma-gruplari/${product.slug}`} class="relative block group shrink-0">
+                      <img
+                        src={getStrapiImageUrl(product.anaGorsel, "medium")}
+                        class={`w-full ${i % 3 === 0 ? 'h-72' : i % 3 === 1 ? 'h-64' : 'h-80'} object-cover rounded-2xl shadow-lg`}
+                        alt={product.baslik}
+                      />
+                      <div class="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors rounded-2xl flex items-end justify-center pb-4 opacity-0 group-hover:opacity-100">
+                        <span class="text-white font-semibold text-sm bg-black/60 px-3 py-1 rounded-full">{product.baslik}</span>
+                      </div>
+                    </a>
+                  ))}
+                </>
+              ) : (
+                <>
+                  <img src="/hero2.jpg" class="w-full h-72 object-cover rounded-2xl shadow-lg" alt="Mobilya" />
+                  <img src="/hero3.jpg" class="w-full h-64 object-cover rounded-2xl shadow-lg" alt="Mobilya" />
+                  <img src="/hero1.jpg" class="w-full h-80 object-cover rounded-2xl shadow-lg" alt="Mobilya" />
+                  <img src="/hero2.jpg" class="w-full h-72 object-cover rounded-2xl shadow-lg" alt="Mobilya" />
+                  <img src="/hero3.jpg" class="w-full h-64 object-cover rounded-2xl shadow-lg" alt="Mobilya" />
+                  <img src="/hero1.jpg" class="w-full h-80 object-cover rounded-2xl shadow-lg" alt="Mobilya" />
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -291,6 +294,42 @@ const featuredProducts = oturmaGruplari.slice(0, 4);
     </div>
   </section>
 
+  <!-- Tanıtım Bölümü -->
+  {bolumGorselleri.length > 0 && (
+    <section class="craftsmanship-section py-20 bg-bg">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="craftsmanship-header text-center mb-12">
+          <h2 class="text-3xl md:text-4xl font-bold mb-4">
+            {anasayfaAyarlari?.bolumBaslik || "Ustalığın İzinde"}
+          </h2>
+          {(anasayfaAyarlari?.bolumAciklama) && (
+            <p class="text-fg-muted max-w-2xl mx-auto">
+              {anasayfaAyarlari.bolumAciklama}
+            </p>
+          )}
+        </div>
+
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 auto-rows-[180px] md:auto-rows-[220px]">
+          {bolumGorselleri.map((item, idx) => (
+            <div class={`craft-item rounded-2xl overflow-hidden relative group ${idx === 0 ? 'col-span-2 row-span-2' : ''} ${idx === bolumGorselleri.length - 1 && idx > 2 ? 'col-span-2' : ''}`}>
+              <img
+                src={getStrapiImageUrl(item.gorsel, "medium")}
+                alt={item.etiket || `Görsel ${idx + 1}`}
+                class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                loading="lazy"
+              />
+              {item.etiket && (
+                <div class="absolute inset-0 bg-linear-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-6">
+                  <span class="text-white font-semibold">{item.etiket}</span>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
   <!-- Featured Products Section -->
   {
     featuredProducts.length > 0 && (
@@ -324,44 +363,77 @@ const featuredProducts = oturmaGruplari.slice(0, 4);
             </a>
           </div>
 
-          <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {featuredProducts.map((product, index) => (
+          {/* Mobile: Swiper, Desktop: Grid */}
+          <div class="featured-swiper-container block lg:hidden">
+            <div class="swiper featured-swiper">
+              <div class="swiper-wrapper">
+                {featuredProducts.map((product) => (
+                  <div class="swiper-slide">
+                    <a
+                      href={`/oturma-gruplari/${product.slug}`}
+                      class="product-card block p-4 bg-bg rounded-2xl border border-muted-3 hover:border-accent transition-colors duration-300 group"
+                    >
+                      <div class="aspect-4/3 rounded-xl overflow-hidden bg-muted-3 mb-4">
+                        {product.anaGorsel ? (
+                          <img
+                            src={getStrapiImageUrl(product.anaGorsel, "medium")}
+                            alt={product.baslik}
+                            class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                            loading="lazy"
+                          />
+                        ) : (
+                          <div class="w-full h-full flex items-center justify-center text-fg-muted">
+                            <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                          </div>
+                        )}
+                      </div>
+                      <h3 class="font-semibold text-lg group-hover:text-accent transition-colors">
+                        {product.baslik}
+                      </h3>
+                      {blocksToSummary(product.detayliAciklama) && (
+                        <p class="text-sm text-fg-muted mt-1 line-clamp-2">
+                          {blocksToSummary(product.detayliAciklama)}
+                        </p>
+                      )}
+                    </a>
+                  </div>
+                ))}
+              </div>
+              <div class="featured-pagination flex justify-center mt-6"></div>
+            </div>
+          </div>
+
+          {/* Desktop Grid */}
+          <div class="hidden lg:grid lg:grid-cols-4 gap-6">
+            {featuredProducts.map((product) => (
               <a
                 href={`/oturma-gruplari/${product.slug}`}
                 class="product-card block p-4 bg-bg rounded-2xl border border-muted-3 hover:border-accent transition-colors duration-300 group"
               >
                 <div class="aspect-4/3 rounded-xl overflow-hidden bg-muted-3 mb-4">
-                  {product.heroImage ? (
+                  {product.anaGorsel ? (
                     <img
-                      src={getStrapiImageUrl(product.heroImage, "medium")}
-                      alt={product.title}
+                      src={getStrapiImageUrl(product.anaGorsel, "medium")}
+                      alt={product.baslik}
                       class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                       loading="lazy"
                     />
                   ) : (
                     <div class="w-full h-full flex items-center justify-center text-fg-muted">
-                      <svg
-                        class="w-12 h-12"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="1"
-                          d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-                        />
+                      <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                       </svg>
                     </div>
                   )}
                 </div>
                 <h3 class="font-semibold text-lg group-hover:text-accent transition-colors">
-                  {product.title}
+                  {product.baslik}
                 </h3>
-                {product.summary && (
+                {blocksToSummary(product.detayliAciklama) && (
                   <p class="text-sm text-fg-muted mt-1 line-clamp-2">
-                    {product.summary}
+                    {blocksToSummary(product.detayliAciklama)}
                   </p>
                 )}
               </a>
@@ -372,50 +444,16 @@ const featuredProducts = oturmaGruplari.slice(0, 4);
     )
   }
 
-  <!-- CTA Section -->
-  <section class="cta-section py-20 bg-fg">
-    <div class="cta-content max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-      <h2 class="text-3xl md:text-4xl font-bold text-bg mb-6">
-        Hayalinizdeki Mobilyayı Birlikte Tasarlayalım
-      </h2>
-      <p class="text-muted-2 text-lg mb-8 max-w-2xl mx-auto">
-        Özel sipariş ve kişiselleştirilmiş tasarımlar için bizimle iletişime
-        geçin.
+  <!-- SEO Text Block -->
+  <section class="py-12 border-t border-muted-3">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <h2 class="text-lg font-semibold mb-3 text-fg">Eroll Mobilya Elazığ - Kaliteli Mobilya İmalatı</h2>
+      <p class="text-sm text-fg-muted/70 leading-relaxed mb-3">
+        Eroll Mobilya, Elazığ'da mobilya imalatı alanında uzun yıllardır hizmet vermektedir. Oturma grubu, koltuk takımı ve salon takımı üretiminde kaliteyi ön planda tutan firmamız, hem toptan hem perakende satış ile müşterilerine ulaşmaktadır. Modern oturma grubu modellerimiz ve özel tasarım mobilyalarımızla evinize değer katıyoruz.
       </p>
-      <div class="flex flex-wrap justify-center gap-4">
-        <a
-          href="tel:+905301227623"
-          class="cta-button inline-flex items-center gap-2 px-6 py-3 bg-accent text-white font-semibold rounded-lg hover:bg-accent-light transition-all"
-        >
-          <svg
-            class="w-5 h-5"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
-            ></path>
-          </svg>
-          0530 122 76 23
-        </a>
-        <a
-          href="https://wa.me/905301227623"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="cta-button inline-flex items-center gap-2 px-6 py-3 bg-[#25D366] text-white font-semibold rounded-lg hover:bg-[#128C7E] transition-all"
-        >
-          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-            <path
-              d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"
-            ></path>
-          </svg>
-          WhatsApp
-        </a>
-      </div>
+      <p class="text-sm text-fg-muted/70 leading-relaxed">
+        Köşe koltuk, modern koltuk modelleri ve özel sipariş mobilya ihtiyaçlarınız için Elazığ'ın güvenilir mobilya firmasını tercih edin. Eroll Mobilya & Koltuk olarak, her bütçeye uygun kaliteli ürünler sunuyor, toptan mobilya tedariğiyle bayilerimize de hizmet veriyoruz.
+      </p>
     </div>
   </section>
 </BaseLayout>
@@ -431,14 +469,35 @@ const featuredProducts = oturmaGruplari.slice(0, 4);
 
 <script>
   import { animate, stagger, inView } from "motion";
+  import Swiper from "swiper";
+  import { Pagination } from "swiper/modules";
+  import "swiper/css";
+  import "swiper/css/pagination";
+
+  // Featured Products Swiper (mobile only)
+  const featuredSwiperEl = document.querySelector(".featured-swiper");
+  if (featuredSwiperEl) {
+    new Swiper(".featured-swiper", {
+      modules: [Pagination],
+      slidesPerView: 1.15,
+      spaceBetween: 16,
+      pagination: {
+        el: ".featured-pagination",
+        clickable: true,
+      },
+      breakpoints: {
+        640: {
+          slidesPerView: 2,
+          spaceBetween: 20,
+        },
+      },
+    });
+  }
 
   // Hero Section Animations
   const heroContent = document.querySelector(".hero-content");
-  const heroImage = document.querySelector(".hero-image");
   const heroBadge = document.querySelector(".hero-badge");
-  const floatingBadge = document.querySelector(".floating-badge");
 
-  // Hero content entrance animation
   if (heroContent) {
     animate(
       heroContent,
@@ -447,30 +506,11 @@ const featuredProducts = oturmaGruplari.slice(0, 4);
     );
   }
 
-  // Hero badge pulse animation
   if (heroBadge) {
     animate(
       heroBadge,
       { opacity: [0, 1], scale: [0.8, 1] },
       { duration: 0.6, delay: 0.2, ease: "easeOut" }
-    );
-  }
-
-  // Hero image slide-in animation
-  if (heroImage) {
-    animate(
-      heroImage,
-      { opacity: [0, 1], x: [60, 0] },
-      { duration: 0.9, delay: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }
-    );
-  }
-
-  // Floating badge bounce animation
-  if (floatingBadge) {
-    animate(
-      floatingBadge,
-      { opacity: [0, 1], y: [30, 0], scale: [0.9, 1] },
-      { duration: 0.7, delay: 0.6, ease: [0.34, 1.56, 0.64, 1] }
     );
   }
 
@@ -482,7 +522,6 @@ const featuredProducts = oturmaGruplari.slice(0, 4);
       const serviceCards = target.querySelectorAll(".service-card");
       const servicesTitle = target.querySelector(".services-title");
 
-      // Animate title first
       if (servicesTitle) {
         animate(
           servicesTitle,
@@ -491,24 +530,54 @@ const featuredProducts = oturmaGruplari.slice(0, 4);
         );
       }
 
-      // Animate cards with elegant stagger and lift
       if (serviceCards.length > 0) {
         animate(
           serviceCards,
           {
             opacity: [0, 1],
-            y: [50, 0], // Move up
-            scale: [0.95, 1], // Subtle scale up
+            y: [50, 0],
+            scale: [0.95, 1],
           },
           {
             duration: 0.9,
             delay: stagger(0.2, { startDelay: 0.2 }),
-            ease: [0.22, 1, 0.36, 1], // Custom refined spring-like curve
+            ease: [0.22, 1, 0.36, 1],
           }
         );
       }
     },
     { margin: "-200px" }
+  );
+
+  // Craftsmanship Section - Staggered reveal
+  inView(
+    ".craftsmanship-section",
+    (info) => {
+      const target = info.target || info;
+      const header = target.querySelector(".craftsmanship-header");
+      const items = target.querySelectorAll(".craft-item");
+
+      if (header) {
+        animate(
+          header,
+          { opacity: [0, 1], y: [30, 0] },
+          { duration: 0.8, ease: "easeOut" }
+        );
+      }
+
+      if (items.length > 0) {
+        animate(
+          items,
+          { opacity: [0, 1], y: [40, 0], scale: [0.95, 1] },
+          {
+            duration: 0.7,
+            delay: stagger(0.1, { startDelay: 0.2 }),
+            ease: [0.22, 1, 0.36, 1],
+          }
+        );
+      }
+    },
+    { amount: 0.15 }
   );
 
   // Featured Products Section - Scale and fade animations
@@ -537,32 +606,6 @@ const featuredProducts = oturmaGruplari.slice(0, 4);
     { amount: 0.15 }
   );
 
-  // CTA Section - Smooth entrance
-  inView(
-    ".cta-section",
-    () => {
-      const ctaContent = document.querySelector(".cta-content");
-      const ctaButtons = document.querySelectorAll(".cta-button");
-
-      if (ctaContent) {
-        animate(
-          ctaContent,
-          { opacity: [0, 1], y: [40, 0] },
-          { duration: 0.7, ease: [0.25, 0.46, 0.45, 0.94] }
-        );
-      }
-
-      if (ctaButtons.length > 0) {
-        animate(
-          ctaButtons,
-          { opacity: [0, 1], scale: [0.9, 1] },
-          { duration: 0.5, delay: stagger(0.15), ease: [0.34, 1.56, 0.64, 1] }
-        );
-      }
-    },
-    { amount: 0.3 }
-  );
-
   // Hover animations for interactive elements
   const interactiveCards = document.querySelectorAll(
     ".service-card, .product-card"
@@ -586,45 +629,33 @@ const featuredProducts = oturmaGruplari.slice(0, 4);
     });
   });
 
-  // CTA Button hover animations
-  const ctaButtons = document.querySelectorAll(".cta-button");
-
-  ctaButtons.forEach((btn) => {
-    btn.addEventListener("mouseenter", () => {
-      animate(btn, { scale: 1.05 }, { duration: 0.2, ease: "easeOut" });
-    });
-
-    btn.addEventListener("mouseleave", () => {
-      animate(btn, { scale: 1 }, { duration: 0.2, ease: "easeOut" });
-    });
-  });
-
-  // Word Rotator Animation
-  const rotator = document.querySelector(".word-rotator");
+  // Word Rotator Animation - Fixed with setTimeout chaining
+  const rotator = document.querySelector(".word-rotator") as HTMLElement;
   if (rotator) {
     const wordCount = 7; // Number of unique words
     let currentIndex = 0;
 
-    const startRotation = () => {
-      setInterval(() => {
-        currentIndex++;
-        const totalItems = wordCount + 1; // Including duplicate
-        const percentage = -1 * (currentIndex * (100 / totalItems));
+    const rotateWord = () => {
+      currentIndex++;
+      const totalItems = wordCount + 1; // Including duplicate
+      const percentage = -1 * (currentIndex * (100 / totalItems));
 
-        animate(
-          rotator,
-          { transform: `translateY(${percentage}%)` },
-          { duration: 0.5, ease: [0.22, 1, 0.36, 1] }
-        ).then(() => {
-          if (currentIndex === wordCount) {
-            currentIndex = 0;
-            animate(rotator, { transform: "translateY(0%)" }, { duration: 0 });
-          }
-        });
-      }, 2500);
+      const animation = animate(
+        rotator,
+        { transform: `translateY(${percentage}%)` },
+        { duration: 0.5, ease: [0.22, 1, 0.36, 1] }
+      );
+
+      animation.finished.then(() => {
+        if (currentIndex === wordCount) {
+          currentIndex = 0;
+          rotator.style.transform = "translateY(0%)";
+        }
+        setTimeout(rotateWord, 2500);
+      });
     };
 
-    setTimeout(startRotation, 1000);
+    setTimeout(rotateWord, 1000);
   }
 </script>
 
@@ -633,11 +664,11 @@ const featuredProducts = oturmaGruplari.slice(0, 4);
   .hero-content,
   .services-title,
   .service-card,
-  /* service-icon removed from here to ensure visibility */
+  .craftsmanship-header,
+  .craft-item,
   .products-header,
   .product-card,
-  .cta-content,
-  .cta-button {
+  {
     opacity: 0;
   }
 
@@ -652,5 +683,19 @@ const featuredProducts = oturmaGruplari.slice(0, 4);
 
   .animate-scroll-vertical {
     animation: scroll-vertical 45s linear infinite;
+  }
+
+  /* Featured Swiper pagination */
+  .featured-pagination .swiper-pagination-bullet {
+    width: 8px;
+    height: 8px;
+    background: var(--color-muted-2);
+    opacity: 1;
+  }
+
+  .featured-pagination .swiper-pagination-bullet-active {
+    background: var(--color-accent);
+    width: 24px;
+    border-radius: 4px;
   }
 </style>

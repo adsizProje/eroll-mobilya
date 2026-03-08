@@ -1,15 +1,16 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { getAllOturmaGrubuSlugs, getOturmaGrubuBySlug, getStrapiImageUrl, blocksToHtml } from '../../lib/api';
+import { getAllOturmaGrubuSlugs, getOturmaGrubuBySlug, getStrapiImageUrl, blocksToHtml, blocksToSummary, getUrunDetayBolumu } from '../../lib/api';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/thumbs';
 import 'swiper/css/effect-fade';
+import 'swiper/css/pagination';
 import 'photoswipe/dist/photoswipe.css';
 
 export async function getStaticPaths() {
   const slugs = await getAllOturmaGrubuSlugs();
-  
+
   return slugs.map((slug) => ({
     params: { slug },
   }));
@@ -22,46 +23,51 @@ if (!product) {
   return Astro.redirect('/oturma-gruplari');
 }
 
-const richContent = product.bodyRich ? blocksToHtml(product.bodyRich) : '';
+const richContent = product.detayliAciklama ? blocksToHtml(product.detayliAciklama) : '';
+const urunDetayBolumu = await getUrunDetayBolumu();
 
 // Prepare images for gallery
-const heroImage = product.heroImage ? getStrapiImageUrl(product.heroImage, 'large') : null;
-const heroThumb = product.heroImage ? getStrapiImageUrl(product.heroImage, 'thumbnail') : null;
-const heroFull = product.heroImage ? getStrapiImageUrl(product.heroImage, 'large') : null; // Assuming full size exists for zoom
-// Using large as full if full not available for simplicity in demo
-const heroZoom = product.heroImage ? getStrapiImageUrl(product.heroImage, 'large') : null;
-
-// Combine all images
-const allImages = [];
-if (product.heroImage) {
+const allImages: { id: string; src: string; thumb: string; w: number; h: number; alt: string }[] = [];
+if (product.anaGorsel) {
     allImages.push({
         id: 'hero',
-        src: getStrapiImageUrl(product.heroImage, 'large'),
-        thumb: getStrapiImageUrl(product.heroImage, 'thumbnail'),
-        w: product.heroImage.width || 1200,
-        h: product.heroImage.height || 900,
-        alt: product.title
+        src: getStrapiImageUrl(product.anaGorsel, 'large'),
+        thumb: getStrapiImageUrl(product.anaGorsel, 'thumbnail'),
+        w: product.anaGorsel.width || 1200,
+        h: product.anaGorsel.height || 900,
+        alt: product.baslik
     });
 }
-if (product.gallery) {
-    product.gallery.forEach((img, idx) => {
+if (product.galeriGorselleri) {
+    product.galeriGorselleri.forEach((img, idx) => {
         allImages.push({
             id: `gallery-${idx}`,
             src: getStrapiImageUrl(img, 'large'),
             thumb: getStrapiImageUrl(img, 'thumbnail'),
             w: img.width || 1200,
             h: img.height || 900,
-            alt: `${product.title} - ${idx + 1}`
+            alt: `${product.baslik} - ${idx + 1}`
         });
     });
 }
+
+const summary = blocksToSummary(product.detayliAciklama);
+const seoDescription = summary
+  ? `${product.baslik} - ${summary} | Eroll Mobilya Elazig`
+  : `${product.baslik} - Eroll Mobilya tarafından özenle üretilen kaliteli oturma grubu. Elazığ mobilya imalatı.`;
+
+// Renk varyantlari
+const renkVaryantlari = product.renkVaryantlari || [];
+
+// Alt bolum gorselleri
+const bolumGorselleri = urunDetayBolumu?.bolumGorselleri || [];
 ---
 
-<BaseLayout title={`${product.title} | Eroll Mobilya & Koltuk`} description={product.summary || undefined}>
+<BaseLayout title={`${product.baslik} | Eroll Mobilya & Koltuk`} description={seoDescription}>
   <!-- Mobile Sticky Bottom Bar -->
   <div class="fixed bottom-0 left-0 right-0 z-50 bg-bg border-t border-muted-3 p-3 md:hidden flex gap-3 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
-    <a 
-      href={`https://wa.me/905301227623?text=${encodeURIComponent(`Merhaba, ${product.title} hakkında bilgi almak istiyorum.`)}`}
+    <a
+      href={`https://wa.me/905301227623?text=${encodeURIComponent(`Merhaba, ${product.baslik} hakkında bilgi almak istiyorum.`)}`}
       target="_blank"
       rel="noopener noreferrer"
       class="flex-1 px-4 py-3 bg-[#25D366] text-white font-semibold rounded-xl hover:bg-[#128C7E] transition-colors flex items-center justify-center gap-2 text-sm shadow-sm"
@@ -71,7 +77,7 @@ if (product.gallery) {
       </svg>
       WhatsApp
     </a>
-    <a 
+    <a
       href="tel:+905301227623"
       class="flex-1 px-4 py-3 bg-fg text-bg font-semibold rounded-xl hover:bg-fg/90 transition-colors flex items-center justify-center gap-2 text-sm shadow-sm"
     >
@@ -94,10 +100,10 @@ if (product.gallery) {
           <a href="/oturma-gruplari" class="text-fg-muted hover:text-accent transition-colors">Oturma Grupları</a>
         </li>
         <li class="text-fg-muted">/</li>
-        <li class="text-accent font-medium">{product.title}</li>
+        <li class="text-accent font-medium">{product.baslik}</li>
       </ol>
     </nav>
-    
+
     <div class="grid lg:grid-cols-[1.4fr_0.8fr] gap-0 lg:gap-12 xl:gap-16 items-start">
         <!-- Gallery Section -->
         <div class="product-gallery relative group bg-bg-alt md:rounded-2xl overflow-hidden">
@@ -108,17 +114,17 @@ if (product.gallery) {
                         <div class="swiper-wrapper">
                             {allImages.map((img) => (
                                 <div class="swiper-slide cursor-zoom-in">
-                                    <a 
-                                        href={img.src} 
-                                        data-pswp-width={img.w} 
-                                        data-pswp-height={img.h} 
-                                        target="_blank" 
+                                    <a
+                                        href={img.src}
+                                        data-pswp-width={img.w}
+                                        data-pswp-height={img.h}
+                                        target="_blank"
                                         rel="noreferrer"
                                         class="block w-full h-full pswp-link"
                                     >
-                                        <img 
-                                            src={img.src} 
-                                            alt={img.alt} 
+                                        <img
+                                            src={img.src}
+                                            alt={img.alt}
                                             class="w-full h-full object-cover"
                                         />
                                     </a>
@@ -140,9 +146,9 @@ if (product.gallery) {
                                 <div class="swiper-wrapper">
                                     {allImages.map((img) => (
                                         <div class="swiper-slide !w-20 aspect-square rounded-lg overflow-hidden cursor-pointer opacity-50 transition-all duration-300 hover:opacity-100 [&.swiper-slide-thumb-active]:opacity-100 [&.swiper-slide-thumb-active]:ring-2 [&.swiper-slide-thumb-active]:ring-accent [&.swiper-slide-thumb-active]:scale-105">
-                                            <img 
-                                                src={img.thumb} 
-                                                alt={img.alt} 
+                                            <img
+                                                src={img.thumb}
+                                                alt={img.alt}
                                                 class="w-full h-full object-cover"
                                             />
                                         </div>
@@ -151,7 +157,7 @@ if (product.gallery) {
                             </div>
                         </div>
                      )}
-                     
+
                      <!-- Mobile Pagination Indicator -->
                      <div class="absolute bottom-2 right-2 z-20 md:hidden bg-black/50 backdrop-blur-sm px-2 py-1 rounded-full text-white text-sm font-medium">
                         <span class="current-slide">1</span> / <span class="total-slides">{allImages.length}</span>
@@ -165,7 +171,7 @@ if (product.gallery) {
                 </div>
             )}
         </div>
-        
+
         <!-- Product Details Section -->
         <div class="px-4 py-6 md:p-0 md:sticky md:top-8 h-fit space-y-8">
             <div class="space-y-4">
@@ -173,61 +179,51 @@ if (product.gallery) {
                      <ol class="flex items-center gap-2 text-xs text-fg-muted mb-2">
                         <li><a href="/oturma-gruplari">Oturma Grupları</a></li>
                         <li>/</li>
-                        <li class="font-medium text-fg">{product.title}</li>
+                        <li class="font-medium text-fg">{product.baslik}</li>
                     </ol>
                 </nav>
-                <h1 class="text-3xl md:text-4xl lg:text-5xl font-bold text-fg leading-tight">{product.title}</h1>
-                {product.summary && (
+                <h1 class="text-3xl md:text-4xl lg:text-5xl font-bold text-fg leading-tight">{product.baslik}</h1>
+                {summary && (
                     <p class="text-lg text-fg-muted leading-relaxed max-w-2xl">
-                        {product.summary}
+                        {summary}
                     </p>
                 )}
             </div>
 
-            <!-- Specs Card -->
-            {(product.dimensions || product.materials) && (
-                <div class="bg-muted-3/50 rounded-2xl p-6 space-y-5 border border-muted-3">
-                    <h3 class="font-semibold text-lg flex items-center gap-2">
-                        <svg class="w-5 h-5 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        Ürün Özellikleri
-                    </h3>
-                    
-                    {product.dimensions && (
-                        <div class="flex items-start gap-4">
-                            <div class="w-10 h-10 rounded-full bg-white flex items-center justify-center shrink-0 shadow-sm text-accent">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
-                                </svg>
-                            </div>
-                            <div>
-                                <span class="text-xs font-semibold text-fg-muted uppercase tracking-wider">Boyutlar</span>
-                                <p class="font-medium mt-0.5">{product.dimensions}</p>
-                            </div>
-                        </div>
-                    )}
-                    
-                    {product.materials && (
-                        <div class="flex items-start gap-4">
-                            <div class="w-10 h-10 rounded-full bg-white flex items-center justify-center shrink-0 shadow-sm text-accent">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
-                                </svg>
-                            </div>
-                            <div>
-                                <span class="text-xs font-semibold text-fg-muted uppercase tracking-wider">Malzemeler</span>
-                                <p class="font-medium mt-0.5">{product.materials}</p>
-                            </div>
-                        </div>
-                    )}
+            <!-- Renk Varyantlari -->
+            {renkVaryantlari.length > 0 && (
+                <div class="space-y-3">
+                    <span class="text-xs font-semibold text-fg-muted uppercase tracking-wider">Renk Seçenekleri</span>
+                    <div class="flex flex-wrap gap-3">
+                        {renkVaryantlari.map((renk) => (
+                            <button
+                                class="renk-swatch group relative flex flex-col items-center gap-1"
+                                data-slide-index={renk.resimSirasi ?? 0}
+                                title={renk.renkAdi}
+                            >
+                                {renk.renkKodu ? (
+                                    <span
+                                        class="w-14 h-14 rounded-lg border-2 border-muted-3 hover:ring-2 hover:ring-accent transition-all cursor-pointer"
+                                        style={`background-color: ${renk.renkKodu};`}
+                                    ></span>
+                                ) : renk.gorsel ? (
+                                    <span class="w-14 h-14 rounded-lg border-2 border-muted-3 hover:ring-2 hover:ring-accent transition-all cursor-pointer overflow-hidden">
+                                        <img src={getStrapiImageUrl(renk.gorsel, 'thumbnail')} alt={renk.renkAdi} class="w-full h-full object-cover" />
+                                    </span>
+                                ) : (
+                                    <span class="w-14 h-14 rounded-lg border-2 border-muted-3 bg-muted-3 hover:ring-2 hover:ring-accent transition-all cursor-pointer"></span>
+                                )}
+                                <span class="text-xs text-fg-muted">{renk.renkAdi}</span>
+                            </button>
+                        ))}
+                    </div>
                 </div>
             )}
 
             <!-- Desktop Actions -->
             <div class="hidden md:flex flex-col gap-3">
-                 <a 
-                  href={`https://wa.me/905301227623?text=${encodeURIComponent(`Merhaba, ${product.title} hakkında bilgi almak istiyorum.`)}`}
+                 <a
+                  href={`https://wa.me/905301227623?text=${encodeURIComponent(`Merhaba, ${product.baslik} hakkında bilgi almak istiyorum.`)}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   class="w-full px-6 py-4 bg-[#25D366] text-white text-lg font-bold rounded-xl hover:bg-[#128C7E] flex items-center justify-center gap-3 shadow-lg shadow-[#25D366]/20 hover:shadow-xl hover:shadow-[#25D366]/30 transform hover:-translate-y-0.5 transition-all"
@@ -237,7 +233,7 @@ if (product.gallery) {
                   </svg>
                   WhatsApp ile Bilgi Al
                 </a>
-                <a 
+                <a
                   href="tel:+905301227623"
                   class="w-full px-6 py-4 border-2 border-fg font-bold rounded-xl hover:bg-fg hover:text-bg transition-colors flex items-center justify-center gap-3"
                 >
@@ -254,13 +250,65 @@ if (product.gallery) {
             )}
         </div>
     </div>
+
+    <!-- Alt Tanıtım Bölümü (Global) -->
+    {urunDetayBolumu && (urunDetayBolumu.bolumBaslik || bolumGorselleri.length > 0) && (
+      <section class="bolum-section mt-16 py-16 border-t border-muted-3">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="bolum-text text-center max-w-2xl mx-auto mb-10 space-y-4">
+            {urunDetayBolumu.bolumBaslik && (
+              <h2 class="text-3xl md:text-4xl font-bold">{urunDetayBolumu.bolumBaslik}</h2>
+            )}
+            {urunDetayBolumu.bolumAciklama && (
+              <p class="text-fg-muted leading-relaxed text-lg">{urunDetayBolumu.bolumAciklama}</p>
+            )}
+          </div>
+            {bolumGorselleri.length > 0 && (
+              <div class="bolum-slider-wrapper relative">
+                <div class="swiper bolum-swiper rounded-2xl overflow-hidden">
+                  <div class="swiper-wrapper">
+                    {bolumGorselleri.map((img, idx) => (
+                      <div class="swiper-slide">
+                        <div class="bolum-img aspect-[4/3] rounded-2xl overflow-hidden">
+                          <img
+                            src={getStrapiImageUrl(img, 'medium')}
+                            alt={img.alternativeText || `Görsel ${idx + 1}`}
+                            class="w-full h-full object-cover"
+                            loading="lazy"
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <!-- Navigation -->
+                <button class="bolum-prev absolute left-[-20px] top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-bg border border-muted-3 rounded-full shadow-lg flex items-center justify-center hover:bg-accent hover:text-white hover:border-accent transition-all">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                </button>
+                <button class="bolum-next absolute right-[-20px] top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-bg border border-muted-3 rounded-full shadow-lg flex items-center justify-center hover:bg-accent hover:text-white hover:border-accent transition-all">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                </button>
+                <!-- Pagination dots -->
+                <div class="bolum-pagination flex justify-center gap-2 mt-4"></div>
+              </div>
+            )}
+        </div>
+      </section>
+    )}
   </div>
+
+  <!-- SEO Text Block -->
+  <section class="py-12 border-t border-muted-3">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <h2 class="text-lg font-semibold mb-3 text-fg">{product.baslik} - Eroll Mobilya</h2>
+      <p class="text-sm text-fg-muted/70 leading-relaxed">
+        {product.baslik}, Eroll Mobilya tarafından özenle üretilen kaliteli bir oturma grubudur. Elazığ mobilya imalatı alanında uzman kadromuz tarafından, en kaliteli malzemeler kullanılarak hazırlanmıştır. {summary ? summary : `Modern tasarımı ve dayanıklı yapısıyla yaşam alanlarınıza değer katan ${product.baslik}, koltuk takımı ve salon takımı arayanlar için ideal bir seçimdir.`} Özel sipariş ve kişiselleştirilmiş tasarımlar için bizimle iletişime geçebilirsiniz.
+      </p>
+    </div>
+  </section>
 </BaseLayout>
 
 <style>
-  /* Custom Swiper Styles */
-
-  
   /* Prose Content Styling */
   .prose-content h2 {
     font-size: 1.5rem;
@@ -269,7 +317,7 @@ if (product.gallery) {
     margin-bottom: 1rem;
     color: var(--color-fg);
   }
-  
+
   .prose-content h3 {
     font-size: 1.25rem;
     font-weight: 600;
@@ -277,24 +325,24 @@ if (product.gallery) {
     margin-bottom: 0.75rem;
     color: var(--color-fg);
   }
-  
+
   .prose-content p {
     color: var(--color-fg-muted);
     line-height: 1.75;
     margin-bottom: 1rem;
   }
-  
+
   .prose-content ul {
     margin: 1rem 0;
     padding-left: 1.5rem;
     list-style-type: disc;
   }
-  
+
   .prose-content li {
     margin-bottom: 0.5rem;
     color: var(--color-fg-muted);
   }
-  
+
   .prose-content img {
     border-radius: 1rem;
     margin: 1.5rem 0;
@@ -304,11 +352,11 @@ if (product.gallery) {
 
 <script>
   import Swiper from 'swiper';
-  import { Navigation, Thumbs, EffectFade, Keyboard } from 'swiper/modules';
+  import { Navigation, Thumbs, EffectFade, Keyboard, Pagination, Autoplay } from 'swiper/modules';
   import PhotoSwipeLightbox from 'photoswipe/lightbox';
+  import PhotoSwipe from 'photoswipe';
 
   function initGallery() {
-    // Only init if gallery exists
     if (!document.querySelector('.product-gallery')) return;
 
     // Initialize Thumbs Swiper
@@ -336,6 +384,8 @@ if (product.gallery) {
       slidesPerView: 1,
       effect: 'fade',
       loop: true,
+      preventClicks: false,
+      preventClicksPropagation: false,
       fadeEffect: {
         crossFade: true
       },
@@ -351,26 +401,55 @@ if (product.gallery) {
       },
       on: {
         slideChange: (swiper) => {
-            // Update counter for mobile
             const current = swiper.realIndex + 1;
-            const total = swiper.slides.length;
             const currentEl = document.querySelector('.current-slide');
             if (currentEl) currentEl.textContent = current.toString();
         }
       }
     });
 
-    // Initialize PhotoSwipe
+    // Initialize PhotoSwipe for main gallery
     const lightbox = new PhotoSwipeLightbox({
-      gallery: '.main-swiper',
-      children: '.swiper-slide:not(.swiper-slide-duplicate) > a', // Selector fix for looped Swiper
-      pswpModule: () => import('photoswipe'),
+      gallery: '.main-swiper .swiper-wrapper',
+      children: '.swiper-slide:not(.swiper-slide-duplicate) .pswp-link',
+      pswpModule: PhotoSwipe,
       padding: { top: 20, bottom: 20, left: 20, right: 20 },
     });
-    
+
+    // Prevent Swiper from blocking clicks on zoom links
+    lightbox.addFilter('isClickableElement', (isClickable, el) => {
+      if (el.closest('.pswp-link')) return true;
+      return isClickable;
+    });
+
     lightbox.init();
-    
-    lightbox.init();
+
+    // Boyut gorseli zoom
+    const boyutZoomLink = document.querySelector('.boyut-zoom-link');
+    if (boyutZoomLink) {
+      const boyutLightbox = new PhotoSwipeLightbox({
+        gallery: '.boyut-zoom-link',
+        pswpModule: PhotoSwipe,
+        padding: { top: 20, bottom: 20, left: 20, right: 20 },
+      });
+      // PhotoSwipe needs an anchor with data-pswp-width/height
+      boyutLightbox.init();
+    }
+
+    // Renk varyanti swatch click -> slide gallery to that index
+    const renkSwatches = document.querySelectorAll('.renk-swatch');
+    renkSwatches.forEach((swatch) => {
+      swatch.addEventListener('click', () => {
+        const slideIndex = parseInt((swatch as HTMLElement).dataset.slideIndex || '0');
+
+        // Slide to the corresponding gallery image
+        mainSwiper.slideToLoop(slideIndex, 500);
+
+        // Update active state on swatches
+        renkSwatches.forEach((s) => s.classList.remove('active'));
+        swatch.classList.add('active');
+      });
+    });
   }
 
   // Run on initial load
@@ -379,7 +458,114 @@ if (product.gallery) {
   } else {
     initGallery();
   }
-  
+
   // Also run on Astro page load
   document.addEventListener('astro:page-load', initGallery);
+
+  // Initialize Bolum Swiper
+  function initBolumSwiper() {
+    const bolumEl = document.querySelector('.bolum-swiper');
+    if (!bolumEl) return;
+
+    new Swiper('.bolum-swiper', {
+      modules: [Navigation, Pagination, Autoplay],
+      slidesPerView: 1.2,
+      spaceBetween: 12,
+      loop: true,
+      autoplay: {
+        delay: 3000,
+        disableOnInteraction: false,
+        pauseOnMouseEnter: true,
+      },
+      navigation: {
+        nextEl: '.bolum-next',
+        prevEl: '.bolum-prev',
+      },
+      pagination: {
+        el: '.bolum-pagination',
+        clickable: true,
+        bulletClass: 'bolum-bullet',
+        bulletActiveClass: 'bolum-bullet-active',
+      },
+      breakpoints: {
+        480: {
+          slidesPerView: 1.5,
+          spaceBetween: 16,
+        },
+        640: {
+          slidesPerView: 2,
+          spaceBetween: 16,
+        },
+        1024: {
+          slidesPerView: 2.5,
+          spaceBetween: 20,
+        },
+      },
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initBolumSwiper);
+  } else {
+    initBolumSwiper();
+  }
+  document.addEventListener('astro:page-load', initBolumSwiper);
+
+  // Bolum section animation
+  import { animate, inView, stagger } from "motion";
+
+  inView('.bolum-section', (info) => {
+    const target = info.target || info;
+    const text = target.querySelector('.bolum-text');
+    const imgs = target.querySelectorAll('.bolum-img');
+
+    if (text) {
+      animate(text, { opacity: [0, 1], x: [-30, 0] }, { duration: 0.8, ease: 'easeOut' });
+    }
+    if (imgs.length > 0) {
+      animate(imgs, { opacity: [0, 1], y: [30, 0] }, {
+        duration: 0.7,
+        delay: stagger(0.15, { startDelay: 0.2 }),
+        ease: [0.22, 1, 0.36, 1]
+      });
+    }
+  }, { amount: 0.2 });
 </script>
+
+<style is:global>
+  .bolum-text,
+  .bolum-img {
+    opacity: 0;
+  }
+
+  .renk-swatch.active > span:first-child {
+    box-shadow: 0 0 0 2px var(--color-accent);
+    border-color: var(--color-accent);
+  }
+
+  .bolum-bullet {
+    width: 8px;
+    height: 8px;
+    border-radius: 9999px;
+    background: var(--color-muted-3);
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .bolum-bullet-active {
+    background: var(--color-accent);
+    width: 24px;
+  }
+
+  .bolum-slider-wrapper .bolum-prev,
+  .bolum-slider-wrapper .bolum-next {
+    display: none;
+  }
+
+  @media (min-width: 768px) {
+    .bolum-slider-wrapper .bolum-prev,
+    .bolum-slider-wrapper .bolum-next {
+      display: flex;
+    }
+  }
+</style>

@@ -1,12 +1,12 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
-import { getOturmaGruplari, getStrapiImageUrl } from "../../lib/api";
+import { getOturmaGruplari, getStrapiImageUrl, blocksToSummary } from "../../lib/api";
 
 // Build time'da oturma gruplarını çek
 const oturmaGruplari = await getOturmaGruplari();
 ---
 
-<BaseLayout title="Oturma Grupları | Eroll Mobilya & Koltuk">
+<BaseLayout title="Oturma Grupları Modelleri | Eroll Mobilya & Koltuk" description="Eroll Mobilya oturma grupları modelleri. Modern oturma grubu, salon takımı, köşe koltuk ve koltuk takımı çeşitleri. Elazığ mobilya imalatı.">
   <!-- Hero -->
   <section class="py-12 bg-linear-to-rfrom-bg-alt to-bg">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -34,10 +34,10 @@ const oturmaGruplari = await getOturmaGruplari();
                 data-delay={String((index % 3) * 100)}
               >
                 <div class="aspect-4/3 rounded-xl overflow-hidden bg-muted-3 mb-4">
-                  {product.heroImage ? (
+                  {product.anaGorsel ? (
                     <img
-                      src={getStrapiImageUrl(product.heroImage, "medium")}
-                      alt={product.title}
+                      src={getStrapiImageUrl(product.anaGorsel, "medium")}
+                      alt={product.baslik}
                       class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                       loading={index < 6 ? "eager" : "lazy"}
                     />
@@ -61,11 +61,11 @@ const oturmaGruplari = await getOturmaGruplari();
                 </div>
 
                 <h2 class="text-xl font-semibold group-hover:text-accent transition-colors mb-2">
-                  {product.title}
+                  {product.baslik}
                 </h2>
 
-                {product.summary && (
-                  <p class="text-fg-muted line-clamp-2">{product.summary}</p>
+                {blocksToSummary(product.detayliAciklama) && (
+                  <p class="text-fg-muted line-clamp-2">{blocksToSummary(product.detayliAciklama)}</p>
                 )}
 
                 <span class="inline-flex items-center gap-1 text-accent font-medium mt-4 group-hover:gap-2 transition-all">
@@ -109,6 +109,19 @@ const oturmaGruplari = await getOturmaGruplari();
           </div>
         )
       }
+    </div>
+  </section>
+
+  <!-- SEO Text Block -->
+  <section class="py-12 border-t border-muted-3">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <h2 class="text-lg font-semibold mb-3 text-fg">Oturma Grupları Modelleri - Eroll Mobilya</h2>
+      <p class="text-sm text-fg-muted/70 leading-relaxed mb-3">
+        Eroll Mobilya olarak, modern oturma grubu modellerinden klasik salon takımlarına kadar geniş bir ürün yelpazesi sunuyoruz. Elazığ'da kendi atölyemizde ürettiğimiz oturma grupları, kaliteli malzemeler ve özenli işçilikle hazırlanmaktadır.
+      </p>
+      <p class="text-sm text-fg-muted/70 leading-relaxed">
+        Köşe koltuk, koltuk takımı ve özel tasarım oturma grubu arayanlar için ideal seçenekler sunuyoruz. Toptan mobilya tedariğiyle bayilerimize, perakende satışla bireysel müşterilerimize hizmet veriyoruz. Elazığ oturma grubu fiyatları ve modelleri için bize ulaşın.
+      </p>
     </div>
   </section>
 

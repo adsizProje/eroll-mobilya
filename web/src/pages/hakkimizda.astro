@@ -1,10 +1,14 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+import { getHakkimizdaAyarlari, getStrapiImageUrl } from "../lib/api";
+
+const hakkimizdaAyarlari = await getHakkimizdaAyarlari();
+const videolar = hakkimizdaAyarlari?.videolar || [];
 ---
 
-<BaseLayout title="Hakkımızda | Eroll Mobilya & Koltuk">
+<BaseLayout title="Hakkımızda | Eroll Mobilya & Koltuk" description="Eroll Mobilya & Koltuk hakkında. Elazığ'da kaliteli mobilya imalatı, oturma grubu ve koltuk takımı üretimi. Yılların tecrübesiyle hizmetinizdeyiz.">
   <!-- Hero -->
-  <section class="py-12 bg-linear-to-rfrom-bg-alt to-bg">
+  <section class="py-12 bg-linear-to-r from-bg-alt to-bg">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="max-w-3xl">
         <h1 class="text-4xl md:text-5xl font-bold mb-6">Hakkımızda</h1>
@@ -42,7 +46,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
           <div class="rounded-2xl bg-muted-3 overflow-hidden shadow-elegant-lg">
             <img
               src="/atolye.webp"
-              alt="Eroll Mobilya Atölye"
+              alt="Eroll Mobilya Atolye"
               class="w-full h-auto object-contain hover:scale-105 transition-transform duration-500"
             />
           </div>
@@ -55,6 +59,34 @@ import BaseLayout from "../layouts/BaseLayout.astro";
       </div>
     </div>
   </section>
+
+  <!-- Videos Section -->
+  {videolar.length > 0 && (
+    <section class="py-16 bg-bg">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h2 class="text-3xl font-bold text-center mb-12">Videolarımız</h2>
+
+        <div class="grid md:grid-cols-2 gap-8">
+          {videolar.map((video) => (
+            <div class="space-y-3">
+              <div class="aspect-video rounded-2xl overflow-hidden bg-muted-3 shadow-lg">
+                <video
+                  src={getStrapiImageUrl(video.video)}
+                  controls
+                  preload="metadata"
+                  class="w-full h-full object-cover"
+                  poster=""
+                >
+                  Tarayıcınız video oynatmayı desteklemiyor.
+                </video>
+              </div>
+              <h3 class="font-semibold text-lg">{video.baslik}</h3>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
 
   <!-- Values -->
   <section class="py-16 bg-bg-alt">

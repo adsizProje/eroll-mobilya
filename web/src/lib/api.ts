@@ -46,7 +46,6 @@ export interface OturmaGrubu {
   baslik: string;
   slug: string;
   detayliAciklama: any; // Strapi blocks content
-  malzemeBilgisi: string | null;
   anaGorsel: StrapiImage | null;
   galeriGorselleri: StrapiImage[];
   anasaydaGoster: boolean;
@@ -78,6 +77,7 @@ export interface VideoItem {
   id: number;
   baslik: string;
   video: StrapiImage; // media type (video)
+  dikeyVideo: boolean;
 }
 
 export interface HakkimizdaAyarlari {

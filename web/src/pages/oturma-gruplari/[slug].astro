@@ -457,12 +457,13 @@ const bolumGorselleri = urunDetayBolumu?.bolumGorselleri || [];
   // Also run on Astro page load
   document.addEventListener('astro:page-load', initGallery);
 
-  // Initialize Bolum Swiper
+  // Initialize Bolum Swiper (autoplay sadece viewport'a girince başlar)
   function initBolumSwiper() {
     const bolumEl = document.querySelector('.bolum-swiper');
-    if (!bolumEl) return;
+    const bolumSection = document.querySelector('.bolum-section');
+    if (!bolumEl || !bolumSection) return;
 
-    new Swiper('.bolum-swiper', {
+    const swiper = new Swiper('.bolum-swiper', {
       modules: [Navigation, Pagination, Autoplay],
       slidesPerView: 1.2,
       spaceBetween: 12,
@@ -497,6 +498,22 @@ const bolumGorselleri = urunDetayBolumu?.bolumGorselleri || [];
         },
       },
     });
+
+    // Autoplay sadece bolum-section viewport'a girince başlar
+    swiper.autoplay.stop();
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            swiper.autoplay.start();
+          } else {
+            swiper.autoplay.stop();
+          }
+        });
+      },
+      { threshold: 0.2 }
+    );
+    io.observe(bolumSection);
   }
 
   if (document.readyState === 'loading') {
